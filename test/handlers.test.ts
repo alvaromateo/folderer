@@ -1,0 +1,76 @@
+import { describe, expect, it } from "vitest";
+import {
+	getParentFolder,
+	isCrossfolderMove,
+	isInMonitoredFolder,
+} from "../src/handlers";
+
+describe("getParentFolder", () => {
+	it("returns the directory portion of a nested path", () => {
+		expect(getParentFolder("Literature/note.md")).toBe("Literature");
+	});
+
+	it("returns a nested parent for a deeply nested path", () => {
+		expect(getParentFolder("Projects/Active/note.md")).toBe("Projects/Active");
+	});
+
+	it('returns root sentinel "/" for a top-level file', () => {
+		expect(getParentFolder("note.md")).toBe("/");
+	});
+});
+
+describe("isCrossfolderMove", () => {
+	it("returns true when moving to a different folder", () => {
+		expect(isCrossfolderMove("Literature/note.md", "Drafts/note.md")).toBe(
+			true,
+		);
+	});
+
+	it("returns false when renaming within the same folder", () => {
+		expect(
+			isCrossfolderMove("Literature/new-name.md", "Literature/old-name.md"),
+		).toBe(false);
+	});
+
+	it("returns true when moving from root to a subfolder", () => {
+		expect(isCrossfolderMove("Literature/note.md", "note.md")).toBe(true);
+	});
+
+	it("returns true when moving from a subfolder to root", () => {
+		expect(isCrossfolderMove("note.md", "Literature/note.md")).toBe(true);
+	});
+});
+
+describe("isInMonitoredFolder", () => {
+	it("returns true when the file is directly inside a monitored folder", () => {
+		expect(
+			isInMonitoredFolder("Literature/note.md", ["Literature", "Archive"]),
+		).toBe(true);
+	});
+
+	it("returns false when the file is in a non-monitored folder", () => {
+		expect(
+			isInMonitoredFolder("Drafts/note.md", ["Literature", "Archive"]),
+		).toBe(false);
+	});
+
+	it("returns false when monitored folders list is empty", () => {
+		expect(isInMonitoredFolder("Literature/note.md", [])).toBe(false);
+	});
+
+	it("is case-sensitive", () => {
+		expect(isInMonitoredFolder("literature/note.md", ["Literature"])).toBe(
+			false,
+		);
+	});
+
+	it("does not match a file in a subfolder of a monitored folder", () => {
+		expect(isInMonitoredFolder("Literature/Sub/note.md", ["Literature"])).toBe(
+			false,
+		);
+	});
+
+	it("returns false for a top-level file when no root is monitored", () => {
+		expect(isInMonitoredFolder("note.md", ["Literature"])).toBe(false);
+	});
+});

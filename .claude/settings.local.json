@@ -1,0 +1,13 @@
+{
+	"permissions": {
+		"allow": [
+			"WebFetch(domain:docs.obsidian.md)",
+			"WebSearch",
+			"Bash(npm install *)",
+			"Bash(mise run *)",
+			"Bash(mise exec *)",
+			"Bash(ln -sf \"$\\(pwd\\)/main.js\" test-vault/.obsidian/plugins/folderer/main.js)",
+			"Bash(ln -sf \"$\\(pwd\\)/manifest.json\" test-vault/.obsidian/plugins/folderer/manifest.json)"
+		]
+	}
+}

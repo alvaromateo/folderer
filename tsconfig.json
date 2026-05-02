@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"module": "nodenext",
+		"target": "ES2018",
+		"allowSyntheticDefaultImports": true,
+		"moduleResolution": "nodenext",
+		"importHelpers": true,
+		"isolatedModules": true,
+		"strictNullChecks": true,
+		"lib": ["DOM", "ES2018"]
+	},
+	"include": ["**/*.ts"],
+	"exclude": ["node_modules", "test-vault"]
+}
