@@ -2,6 +2,14 @@
 
 An Obsidian plugin that watches user-configured folders and appends text to markdown files when they are created in or moved into those folders.
 
+## Verification
+
+- After you finish applying any code changes, use the test-writer-vitest agent to write/update unit tests.
+The agent should verify that the tests it writes pass.
+- When the tests are done and passing, use the code-review-expert agent and ask it to review the changes done.
+- Check with me before applying the fixes/changes suggested by the code-review-expert agent.
+- At the end, run `mise exec node -- npm run fix` and fix any warnings or errors that can't be fixed automatically.
+
 ## Commands
 
 ```bash
@@ -9,7 +17,7 @@ mise exec node -- npm run build       # one-shot production build → dist/main.
 mise exec node -- npm run dev         # watch mode (rebuilds on save)
 mise exec node -- npm test            # run unit tests (Vitest)
 mise exec node -- npm run test:watch  # Vitest interactive watch
-mise exec node -- npm run check       # lint + format + import sort (Biome, auto-fixes)
+mise exec node -- npm run fix         # lint + format + import sort (Biome, auto-fixes)
 mise exec node -- npm run lint        # lint only
 mise exec node -- npm run format      # format only
 ```

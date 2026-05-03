@@ -1,12 +1,20 @@
 import esbuild from 'esbuild';
+import esbuildSvelte from 'esbuild-svelte';
 import process from 'process';
 import builtins from 'builtin-modules';
+import { sveltePreprocess } from 'svelte-preprocess';
 
 const prod = process.argv[2] === 'production';
 
 const context = await esbuild.context({
 	entryPoints: ['src/main.ts'],
 	bundle: true,
+	plugins: [
+		esbuildSvelte({
+			compilerOptions: { css: 'injected' },
+			preprocess: sveltePreprocess(),
+		}),
+	],
 	external: [
 		'obsidian',
 		'electron',

@@ -119,9 +119,11 @@ function migrateRule(r: unknown): Rule {
     id: typeof obj.id === "string" ? obj.id : crypto.randomUUID(),
     name: typeof obj.name === "string" ? obj.name : "",
     enabled: typeof obj.enabled === "boolean" ? obj.enabled : true,
-    trigger: isObject(obj.trigger)
-      ? (obj.trigger as Rule["trigger"])
-      : { type: "create" },
+    trigger:
+      isObject(obj.trigger) &&
+      typeof (obj.trigger as Record<string, unknown>).type === "string"
+        ? { type: (obj.trigger as Record<string, unknown>).type as TriggerType }
+        : { type: "create" },
     condition:
       obj.condition != null ? migrateCondition(obj.condition) : undefined,
     action: migrateAction(obj.action),

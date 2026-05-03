@@ -42,6 +42,25 @@
     {
       "path": "Folder",
       "rules": []
+    },
+    {
+      "path": "WoW",
+      "rules": [
+        {
+          "id": "52bdef11-e86e-43f5-ad70-bebc16ba045e",
+          "name": "Awesome",
+          "enabled": true,
+          "trigger": {
+            "type": "create"
+          },
+          "action": {
+            "type": "append-text",
+            "params": {
+              "text": "Take this!"
+            }
+          }
+        }
+      ]
     }
   ]
 }
