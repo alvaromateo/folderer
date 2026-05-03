@@ -10,7 +10,9 @@
     "test:watch": "vitest",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "check": "biome check --write ."
+    "check": "biome check .",
+    "fix": "biome check --write .",
+    "prepare": "husky"
   },
   "dependencies": {
     "obsidian": "latest"
@@ -20,6 +22,7 @@
     "@types/node": "^22.0.0",
     "builtin-modules": "^4.0.0",
     "esbuild": "^0.25.0",
+    "husky": "^9.1.7",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   }

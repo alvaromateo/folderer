@@ -1,0 +1,2 @@
+mise exec node -- npm run check
+mise exec node -- npm run test
