@@ -1,0 +1,25 @@
+{
+  "monitoredFolders": [
+    {
+      "path": "Test",
+      "rules": [
+        {
+          "id": "c423f85d-91be-4e84-99e2-ce9b1455f918",
+          "name": "Cookie",
+          "enabled": true,
+          "trigger": {
+            "type": "create"
+          },
+          "action": {
+            "type": "append-text",
+            "value": "Finally!"
+          }
+        }
+      ]
+    },
+    {
+      "path": "Folder",
+      "rules": []
+    }
+  ]
+}

@@ -1,73 +1,103 @@
 import { Plugin, TFile } from "obsidian";
-import { DEFAULT_SETTINGS, type FoldererSettings } from "./settings";
-import { FoldererSettingTab } from "./settings-tab";
-import { isCrossfolderMove, isInMonitoredFolder } from "./handlers";
+import { getMatchingFolder, isCrossfolderMove } from "./handlers";
+import { MonitoredFolder } from "./settings/monitored-folder";
+import { FoldererSettings } from "./settings/settings";
+import { FoldererSettingTab } from "./settings/settings-tab";
+import type { FoldererSettingsData, Rule, TriggerType } from "./settings/types";
 
 export default class FoldererPlugin extends Plugin {
-	settings: FoldererSettings | undefined;
+  settings!: FoldererSettings;
 
-	async onload() {
-		this.settings = await this.loadSettings();
-		if (!this.settings) {
-			console.error("Folderer: plugin settings could not be loaded");
-			return;
-		}
+  async onload() {
+    this.settings = await this.loadSettings();
 
-		this.addSettingTab(new FoldererSettingTab(this.app, this));
+    this.addSettingTab(new FoldererSettingTab(this.app, this));
 
-		this.registerEvent(
-			this.app.vault.on("create", async (abstractFile) => {
-				if (!(abstractFile instanceof TFile)) return;
-				if (abstractFile.extension !== "md") return;
-				if (
-					!isInMonitoredFolder(
-						abstractFile.path,
-						this.settings?.monitoredFolders || [],
-					)
-				)
-					return;
+    this.app.workspace.onLayoutReady(() => {
+      this.registerEvent(
+        this.app.vault.on("create", async (abstractFile) => {
+          if (!(abstractFile instanceof TFile)) return;
+          if (abstractFile.extension !== "md") return;
+          const folder = getMatchingFolder(
+            abstractFile.path,
+            this.settings.monitoredFolders,
+          );
+          if (!folder) return;
+          await this.runRules(abstractFile, folder, "create");
+        }),
+      );
+    });
 
-				await this.appendText(abstractFile);
-			}),
-		);
+    this.registerEvent(
+      this.app.vault.on("rename", async (abstractFile, oldPath) => {
+        if (!(abstractFile instanceof TFile)) return;
+        if (abstractFile.extension !== "md") return;
+        const folder = getMatchingFolder(
+          abstractFile.path,
+          this.settings.monitoredFolders,
+        );
+        if (!folder) return;
+        const triggerType: TriggerType = isCrossfolderMove(
+          abstractFile.path,
+          oldPath,
+        )
+          ? "create"
+          : "rename";
+        await this.runRules(abstractFile, folder, triggerType);
+      }),
+    );
+  }
 
-		this.registerEvent(
-			this.app.vault.on("rename", async (abstractFile, oldPath) => {
-				if (!(abstractFile instanceof TFile)) return;
-				if (abstractFile.extension !== "md") return;
+  private async runRules(
+    file: TFile,
+    folder: MonitoredFolder,
+    triggerType: TriggerType,
+  ): Promise<void> {
+    const filename = file.name;
+    for (const rule of folder.rules) {
+      if (!rule.enabled) continue;
+      if (rule.trigger.type !== triggerType) continue;
+      if (rule.condition) {
+        try {
+          if (!new RegExp(rule.condition.value).test(filename)) continue;
+        } catch {
+          console.warn(
+            `Folderer: invalid regex in rule "${rule.name}": ${rule.condition.value}`,
+          );
+          continue;
+        }
+      }
+      await this.executeAction(file, rule);
+    }
+  }
 
-				if (!isCrossfolderMove(abstractFile.path, oldPath)) return;
+  private async executeAction(file: TFile, rule: Rule): Promise<void> {
+    try {
+      await this.app.vault.process(file, (content) => {
+        if (rule.action.type === "append-text")
+          return `${content}\n${rule.action.value}`;
+        if (rule.action.type === "prepend-text")
+          return `${rule.action.value}\n${content}`;
+        return content;
+      });
+    } catch (err) {
+      console.error(
+        `Folderer: action failed for rule "${rule.name}" on ${file.path}`,
+        err,
+      );
+    }
+  }
 
-				if (
-					!isInMonitoredFolder(
-						abstractFile.path,
-						this.settings?.monitoredFolders || [],
-					)
-				)
-					return;
+  async loadSettings(): Promise<FoldererSettings> {
+    const raw = (await this.loadData()) as FoldererSettingsData | null;
+    if (!raw) return new FoldererSettings();
+    const folders = (raw.monitoredFolders ?? []).map((entry) =>
+      MonitoredFolder.fromJSON(entry),
+    );
+    return new FoldererSettings(folders);
+  }
 
-				await this.appendText(abstractFile);
-			}),
-		);
-	}
-
-	private async appendText(file: TFile): Promise<void> {
-		const textToAppend =
-			this.settings?.appendText || DEFAULT_SETTINGS.appendText;
-		try {
-			await this.app.vault.process(file, (content) => {
-				return `${content}\n${textToAppend}`;
-			});
-		} catch (err) {
-			console.error(`Folderer: failed to append to ${file.path}`, err);
-		}
-	}
-
-	async loadSettings() {
-		return Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
+  async saveSettings(): Promise<void> {
+    await this.saveData(this.settings.toJSON());
+  }
 }

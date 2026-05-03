@@ -19,14 +19,14 @@ mise exec node -- npm run format      # format only
 ## Project Structure
 
 ```
-src/main.ts            Plugin entry point (onload, event handlers)
-src/settings.ts        FoldererSettings interface + DEFAULT_SETTINGS
-src/settings-tab.ts    PluginSettingTab UI (add/remove monitored folders)
-src/handlers.ts        Pure logic: getParentFolder, isCrossfolderMove, isInMonitoredFolder
-test/                  Vitest unit tests (handlers only — no Obsidian mocking needed)
-test-vault/            Local Obsidian vault used for manual testing
-dist/                  Build output (gitignored)
-esbuild.config.mjs     Build config: entry main.ts → dist/main.js (CommonJS, ES2018 target)
+src/main.ts                    Plugin entry point (onload, event handlers)
+src/handlers.ts                Pure logic: getParentFolder, isCrossfolderMove, isInMonitoredFolder
+src/settings/settings.ts       FoldererSettings interface + DEFAULT_SETTINGS
+src/settings/settings-tab.ts   PluginSettingTab UI (add/remove monitored folders)
+test/                          Vitest unit tests (handlers only — no Obsidian mocking needed)
+test-vault/                    Local Obsidian vault used for manual testing
+dist/                          Build output (gitignored)
+esbuild.config.mjs             Build config: entry src/main.ts → dist/main.js (CommonJS, ES2018 target)
 ```
 
 ## Architecture

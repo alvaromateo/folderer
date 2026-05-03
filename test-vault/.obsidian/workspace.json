@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Literature/Test.md",
+                "file": "Literature/whatthefu.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Test"
+              "title": "whatthefu"
             }
           }
         ]
@@ -183,10 +183,14 @@
       "bases:Create new base": false
     }
   },
-  "active": "0d5059b9a5bc2251",
+  "active": "261bbe71de4592dc",
   "lastOpenFiles": [
+    "Literature/oh-my.md",
+    "Literature/whatthefu.md",
     "Inbox/Random.md",
     "Literature/Test.md",
+    "Literature/Is it working.md",
+    "Literature/Hello.md",
     "Inbox/Attachments/obsidian-svgrepo-com.svg",
     "Inbox/Attachments",
     "README.md",

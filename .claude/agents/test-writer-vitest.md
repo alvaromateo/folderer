@@ -41,7 +41,7 @@ You are an elite test engineer specializing in comprehensive test coverage using
 **Test Organization**:
 - Group related tests with `describe` blocks
 - Use consistent, descriptive naming: "should [expected behavior] when [condition]"
-- Place unit tests adjacent to source files
+- Place unit tests inside the `test` folder and following the same folder structure as src
 - Include setup files for common utilities and fixtures
 
 **Quality Standards**:
