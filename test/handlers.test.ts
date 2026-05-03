@@ -5,10 +5,10 @@ import {
   isCrossfolderMove,
   isInMonitoredFolder,
 } from "../src/handlers";
-import type { MonitoredFolder } from "../src/settings/types";
+import { MonitoredFolder } from "../src/settings/monitored-folder";
 
 function mkFolders(...paths: string[]): MonitoredFolder[] {
-  return paths.map((path) => ({ path, rules: [] }));
+  return paths.map((path) => new MonitoredFolder(path));
 }
 
 describe("getParentFolder", () => {
