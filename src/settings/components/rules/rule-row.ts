@@ -1,7 +1,7 @@
 import { Setting } from "obsidian";
 import type FoldererPlugin from "../../../main";
+import type { Rule } from "../../../types";
 import type { MonitoredFolder } from "../../monitored-folder";
-import type { Rule } from "../../types";
 import { RuleModal } from "./rule-modal";
 
 export class RuleRow {

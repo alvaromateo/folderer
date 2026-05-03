@@ -1,5 +1,5 @@
+import type { FoldererSettingsData } from "../types";
 import { MonitoredFolder } from "./monitored-folder";
-import type { FoldererSettingsData } from "./types";
 
 type RenderCallback = (folders: MonitoredFolder[]) => void;
 

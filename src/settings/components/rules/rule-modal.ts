@@ -1,6 +1,5 @@
 import { Modal, Notice, Setting } from "obsidian";
 import type FoldererPlugin from "../../../main";
-import type { MonitoredFolder } from "../../monitored-folder";
 import type {
   Action,
   ActionType,
@@ -9,7 +8,8 @@ import type {
   Rule,
   Trigger,
   TriggerType,
-} from "../../types";
+} from "../../../types";
+import type { MonitoredFolder } from "../../monitored-folder";
 
 export class RuleModal extends Modal {
   private rule: Rule;

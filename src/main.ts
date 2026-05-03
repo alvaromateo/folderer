@@ -3,7 +3,7 @@ import { getMatchingFolder, isCrossfolderMove } from "./handlers";
 import { MonitoredFolder } from "./settings/monitored-folder";
 import { FoldererSettings } from "./settings/settings";
 import { FoldererSettingTab } from "./settings/settings-tab";
-import type { FoldererSettingsData, Rule, TriggerType } from "./settings/types";
+import type { FoldererSettingsData, Rule, TriggerType } from "./types";
 
 export default class FoldererPlugin extends Plugin {
   settings!: FoldererSettings;

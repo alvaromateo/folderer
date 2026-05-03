@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { MonitoredFolder } from "../../src/settings/monitored-folder";
-import type { Rule } from "../../src/settings/types";
+import type { Rule } from "../../src/types";
 
 // Polyfill Obsidian Array extensions used by the classes under test
 // biome-ignore lint/suspicious/noExplicitAny: pollyfill

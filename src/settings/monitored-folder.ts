@@ -1,4 +1,4 @@
-import type { MonitoredFolderData, Rule } from "./types";
+import type { MonitoredFolderData, Rule } from "../types";
 
 type RenderCallback = (rules: Rule[]) => void;
 
