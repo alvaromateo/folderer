@@ -20,7 +20,7 @@ function mkRule(id: string, name = "Rule"): Rule {
     name,
     enabled: true,
     trigger: { type: "create" },
-    action: { type: "append-text", value: "folderer" },
+    action: { type: "append-text", params: { text: "folderer" } },
   };
 }
 

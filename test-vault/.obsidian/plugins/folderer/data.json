@@ -10,9 +10,31 @@
           "trigger": {
             "type": "create"
           },
+          "condition": {
+            "type": "filename-matches",
+            "params": {
+              "pattern": "\\d{4}-\\d{2}"
+            }
+          },
           "action": {
             "type": "append-text",
-            "value": "Finally!"
+            "params": {
+              "text": "a chicken"
+            }
+          }
+        },
+        {
+          "id": "b50893dd-1b0e-4b3c-bbe9-6eff01512d72",
+          "name": "Test",
+          "enabled": false,
+          "trigger": {
+            "type": "rename"
+          },
+          "action": {
+            "type": "prepend-text",
+            "params": {
+              "text": "Before title"
+            }
           }
         }
       ]

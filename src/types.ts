@@ -8,7 +8,7 @@ export type ConditionType = "filename-matches";
 
 export interface Condition {
   type: ConditionType;
-  value: string;
+  params: Record<string, string>;
 }
 // Name
 // Property
@@ -21,7 +21,7 @@ export type ActionType = "append-text" | "prepend-text";
 
 export interface Action {
   type: ActionType;
-  value: string;
+  params: Record<string, string>;
 }
 
 export interface Rule {

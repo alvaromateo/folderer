@@ -1,9 +1,8 @@
 import { Modal, Notice, Setting } from "obsidian";
+import type { FieldDescriptor } from "../../../engine/field-descriptor";
 import type FoldererPlugin from "../../../main";
 import type {
   Action,
-  ActionType,
-  Condition,
   ConditionType,
   Rule,
   Trigger,
@@ -25,12 +24,16 @@ export class RuleModal extends Modal {
     this.isNew = selectedRule === null;
 
     if (selectedRule === null) {
+      const firstAction = plugin.engine.registry.allActions()[0];
       this.rule = {
         id: crypto.randomUUID(),
         name: "",
         enabled: true,
         trigger: { type: "create" } as Trigger,
-        action: { type: "append-text", value: "" } as Action,
+        action: {
+          type: (firstAction?.type ?? "append-text") as Action["type"],
+          params: {},
+        },
       };
     } else {
       this.rule = selectedRule;
@@ -71,68 +74,79 @@ export class RuleModal extends Modal {
           }),
       );
 
-    const conditionValueSetting = new Setting(contentEl)
-      .setName("Condition value")
-      .setDesc("Regex pattern matched against the filename (without path)")
-      .addText((text) =>
-        text
-          .setPlaceholder("rule-.*\\.md")
-          .setValue(this.rule.condition?.value ?? "")
-          .onChange((v) => {
-            if (this.rule.condition) this.rule.condition.value = v;
-          }),
-      );
-
-    const showConditionValue = (show: boolean) => {
-      conditionValueSetting.settingEl.style.display = show ? "" : "none";
-    };
-    showConditionValue(!!this.rule.condition);
+    // --- Condition section ---
+    const conditionFieldsEl = contentEl.createDiv();
 
     new Setting(contentEl)
       .setName("Condition")
       .setDesc("Optional filter — leave as None to always run the action")
       .addDropdown((dd) => {
-        dd.addOption("none", "None")
-          .addOption("filename-matches", "Filename matches pattern")
-          .setValue(this.rule.condition?.type ?? "none")
-          .onChange((v) => {
-            if (v === "none") {
-              delete this.rule.condition;
-              showConditionValue(false);
-            } else {
-              this.rule.condition = {
-                type: v as ConditionType,
-                value: this.rule.condition?.value ?? "",
-              } as Condition;
-              showConditionValue(true);
-            }
-          });
+        dd.addOption("none", "None");
+        for (const handler of this.plugin.engine.registry.allConditions()) {
+          dd.addOption(handler.type, handler.label);
+        }
+        dd.setValue(this.rule.condition?.type ?? "none");
+        dd.onChange((v) => {
+          if (v === "none") {
+            delete this.rule.condition;
+          } else {
+            this.rule.condition = {
+              type: v as ConditionType,
+              params: this.rule.condition?.params ?? {},
+            };
+          }
+          this.renderFields(
+            conditionFieldsEl,
+            this.rule.condition
+              ? (this.plugin.engine.registry.getCondition(v)?.fields ?? [])
+              : [],
+            this.rule.condition?.params ?? {},
+          );
+        });
       });
 
-    // Move conditionValueSetting below the condition dropdown in the DOM
-    contentEl.appendChild(conditionValueSetting.settingEl);
+    // Move conditionFieldsEl below the condition dropdown in the DOM
+    contentEl.appendChild(conditionFieldsEl);
 
-    new Setting(contentEl).setName("Action").addDropdown((dd) =>
-      dd
-        .addOption("append-text", "Append text to file")
-        .addOption("prepend-text", "Prepend text to file")
-        .setValue(this.rule.action.type)
-        .onChange((v) => {
-          this.rule.action.type = v as ActionType;
-        }),
+    const initialConditionHandler = this.rule.condition
+      ? this.plugin.engine.registry.getCondition(this.rule.condition.type)
+      : undefined;
+    this.renderFields(
+      conditionFieldsEl,
+      initialConditionHandler?.fields ?? [],
+      this.rule.condition?.params ?? {},
     );
 
-    new Setting(contentEl)
-      .setName("Text")
-      .setDesc("Text to add to the file")
-      .addText((text) =>
-        text
-          .setPlaceholder("folderer")
-          .setValue(this.rule.action.value)
-          .onChange((v) => {
-            this.rule.action.value = v;
-          }),
-      );
+    // --- Action section ---
+    const actionFieldsEl = contentEl.createDiv();
+
+    new Setting(contentEl).setName("Action").addDropdown((dd) => {
+      for (const handler of this.plugin.engine.registry.allActions()) {
+        dd.addOption(handler.type, handler.label);
+      }
+      dd.setValue(this.rule.action.type);
+      dd.onChange((v) => {
+        this.rule.action = { type: v as Action["type"], params: {} };
+        const handler = this.plugin.engine.registry.getAction(v);
+        this.renderFields(
+          actionFieldsEl,
+          handler?.fields ?? [],
+          this.rule.action.params,
+        );
+      });
+    });
+
+    // Move actionFieldsEl below the action dropdown in the DOM
+    contentEl.appendChild(actionFieldsEl);
+
+    const initialActionHandler = this.plugin.engine.registry.getAction(
+      this.rule.action.type,
+    );
+    this.renderFields(
+      actionFieldsEl,
+      initialActionHandler?.fields ?? [],
+      this.rule.action.params,
+    );
 
     new Setting(contentEl)
       .addButton((btn) =>
@@ -154,14 +168,40 @@ export class RuleModal extends Modal {
     this.contentEl.empty();
   }
 
+  private renderFields(
+    container: HTMLElement,
+    fields: FieldDescriptor[],
+    params: Record<string, string>,
+  ): void {
+    container.empty();
+    for (const field of fields) {
+      const setting = new Setting(container).setName(field.label);
+      if (field.description) setting.setDesc(field.description);
+      setting.addText((text) =>
+        text
+          .setPlaceholder(field.placeholder ?? "")
+          .setValue(params[field.key] ?? "")
+          .onChange((v) => {
+            params[field.key] = v;
+          }),
+      );
+    }
+  }
+
   private async save(): Promise<void> {
     if (!this.rule.name.trim()) {
       new Notice("Rule name cannot be empty.");
       return;
     }
-    if (!this.rule.action.value.trim()) {
-      new Notice("Action text cannot be empty.");
-      return;
+
+    const actionHandler = this.plugin.engine.registry.getAction(
+      this.rule.action.type,
+    );
+    for (const field of actionHandler?.fields ?? []) {
+      if (!(this.rule.action.params[field.key] ?? "").trim()) {
+        new Notice(`${field.label} cannot be empty.`);
+        return;
+      }
     }
 
     if (this.isNew) {

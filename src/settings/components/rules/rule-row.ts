@@ -72,9 +72,13 @@ export class RuleRow {
   private buildDescription(rule: Rule): string {
     const parts: string[] = [`on ${rule.trigger.type}`];
     if (rule.condition) {
-      parts.push(`if filename matches "${rule.condition.value}"`);
+      const condHandler = this.plugin.engine.registry.getCondition(
+        rule.condition.type,
+      );
+      parts.push(`if ${condHandler?.label ?? rule.condition.type}`);
     }
-    parts.push(`→ ${rule.action.type} "${rule.action.value}"`);
+    const actHandler = this.plugin.engine.registry.getAction(rule.action.type);
+    parts.push(`→ ${actHandler?.label ?? rule.action.type}`);
     return parts.join(" ");
   }
 }
