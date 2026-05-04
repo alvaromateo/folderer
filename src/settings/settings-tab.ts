@@ -1,7 +1,7 @@
 import { type App, PluginSettingTab } from "obsidian";
 import { mount, unmount } from "svelte";
 import type FoldererPlugin from "../main";
-import SettingsTab from "./components/svelte/SettingsTab.svelte";
+import SettingsTab from "./components/SettingsTab.svelte";
 
 export class FoldererSettingTab extends PluginSettingTab {
   plugin: FoldererPlugin;

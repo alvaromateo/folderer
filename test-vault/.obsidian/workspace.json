@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "76ac2d4f4da8e0ea",
@@ -183,7 +184,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "261bbe71de4592dc",
+  "active": "0d5059b9a5bc2251",
   "lastOpenFiles": [
     "Literature/oh-my.md",
     "Literature/whatthefu.md",

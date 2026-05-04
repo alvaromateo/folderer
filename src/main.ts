@@ -1,11 +1,7 @@
 import { Plugin, TFile } from "obsidian";
-import { appendTextAction } from "./engine/actions/append-text";
-import { prependTextAction } from "./engine/actions/prepend-text";
-import { filenameMatchesCondition } from "./engine/conditions/filename-matches";
-import { HandlerRegistry } from "./engine/registry";
-import { RuleEngine } from "./engine/rule-engine";
+import { createRuleEngine, type RuleEngine } from "./engine/rule-engine";
 import { getMatchingFolder, isCrossfolderMove } from "./handlers";
-import { MonitoredFolder } from "./settings/monitored-folder";
+import { MonitoredFolder } from "./settings/folder-settings";
 import { FoldererSettings } from "./settings/settings";
 import { FoldererSettingTab } from "./settings/settings-tab";
 import type {
@@ -21,7 +17,7 @@ export default class FoldererPlugin extends Plugin {
 
   async onload() {
     this.settings = await this.loadSettings();
-    this.engine = this.createEngine();
+    this.engine = createRuleEngine(this.app);
 
     this.addSettingTab(new FoldererSettingTab(this.app, this));
 
@@ -38,34 +34,26 @@ export default class FoldererPlugin extends Plugin {
           await this.engine.runRules(abstractFile, folder, "create");
         }),
       );
+
+      this.registerEvent(
+        this.app.vault.on("rename", async (abstractFile, oldPath) => {
+          if (!(abstractFile instanceof TFile)) return;
+          if (abstractFile.extension !== "md") return;
+          const folder = getMatchingFolder(
+            abstractFile.path,
+            this.settings.monitoredFolders,
+          );
+          if (!folder) return;
+          const triggerType: TriggerType = isCrossfolderMove(
+            abstractFile.path,
+            oldPath,
+          )
+            ? "create"
+            : "rename";
+          await this.engine.runRules(abstractFile, folder, triggerType);
+        }),
+      );
     });
-
-    this.registerEvent(
-      this.app.vault.on("rename", async (abstractFile, oldPath) => {
-        if (!(abstractFile instanceof TFile)) return;
-        if (abstractFile.extension !== "md") return;
-        const folder = getMatchingFolder(
-          abstractFile.path,
-          this.settings.monitoredFolders,
-        );
-        if (!folder) return;
-        const triggerType: TriggerType = isCrossfolderMove(
-          abstractFile.path,
-          oldPath,
-        )
-          ? "create"
-          : "rename";
-        await this.engine.runRules(abstractFile, folder, triggerType);
-      }),
-    );
-  }
-
-  private createEngine(): RuleEngine {
-    const registry = new HandlerRegistry();
-    registry.registerCondition(filenameMatchesCondition);
-    registry.registerAction(appendTextAction);
-    registry.registerAction(prependTextAction);
-    return new RuleEngine(registry, this.app);
   }
 
   async loadSettings(): Promise<FoldererSettings> {

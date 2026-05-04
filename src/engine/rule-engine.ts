@@ -1,12 +1,16 @@
 import type { App, TFile } from "obsidian";
-import type { MonitoredFolder } from "../settings/monitored-folder";
-import type { Rule, TriggerType } from "../types";
-import type { HandlerRegistry } from "./registry";
+import type { MonitoredFolder } from "../settings/folder-settings";
+import type { TriggerType } from "../types";
+import { HandlerRegistry } from "./registry";
+import { appendTextAction } from "./actions/append-text";
+import { prependTextAction } from "./actions/prepend-text";
+import { FileNameCondition } from "./conditions/file-name";
+import type { Rule } from "../model/rule";
 
 export class RuleEngine {
   constructor(
     public readonly registry: HandlerRegistry,
-    private app: App,
+    public readonly app: App,
   ) {}
 
   async runRules(
@@ -24,14 +28,15 @@ export class RuleEngine {
 
   private async conditionPasses(file: TFile, rule: Rule): Promise<boolean> {
     if (!rule.condition) return true;
-    const handler = this.registry.getCondition(rule.condition.type);
-    if (!handler) {
+    const ConditionCls = this.registry.getCondition(rule.condition.type);
+    if (!ConditionCls) {
       console.warn(
         `Folderer: unknown condition type "${rule.condition.type}" in rule "${rule.name}"`,
       );
       return false;
     }
     try {
+      const handler = new ConditionCls(rule.condition)
       return handler.evaluate(file, rule.condition);
     } catch (err) {
       console.warn(
@@ -59,4 +64,21 @@ export class RuleEngine {
       );
     }
   }
+}
+
+let _ruleEngine: RuleEngine | undefined;
+
+export const getRuleEngine = () => {
+  return _ruleEngine;
+}
+
+export const createRuleEngine = (app: App): RuleEngine => {
+  const registry = new HandlerRegistry();
+  // conditions
+  registry.registerCondition(new FileNameCondition());
+  // actions
+  registry.registerAction(appendTextAction);
+  registry.registerAction(prependTextAction);
+  _ruleEngine = new RuleEngine(registry, app);
+  return _ruleEngine;
 }

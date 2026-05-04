@@ -1,6 +1,6 @@
 import type { TFile } from "obsidian";
 import { describe, expect, it } from "vitest";
-import { filenameMatchesCondition } from "../../../src/engine/conditions/filename-matches";
+import { filenameMatchesCondition } from "../../../src/engine/conditions/file-name";
 import type { Condition } from "../../../src/types";
 
 function mkFile(name: string): TFile {

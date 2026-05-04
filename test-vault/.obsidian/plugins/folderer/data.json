@@ -25,7 +25,7 @@
         },
         {
           "id": "b50893dd-1b0e-4b3c-bbe9-6eff01512d72",
-          "name": "Test",
+          "name": "Fail",
           "enabled": false,
           "trigger": {
             "type": "rename"

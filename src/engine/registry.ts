@@ -1,11 +1,11 @@
 import type { ActionHandler } from "./action-handler";
-import type { ConditionHandler } from "./condition-handler";
+import type { Condition } from "./conditions/condition";
 
 export class HandlerRegistry {
-  private conditions = new Map<string, ConditionHandler>();
+  private conditions = new Map<string, typeof Condition>();
   private actions = new Map<string, ActionHandler>();
 
-  registerCondition(handler: ConditionHandler): void {
+  registerCondition(handler: typeof Condition): void {
     this.conditions.set(handler.type, handler);
   }
 
@@ -13,7 +13,7 @@ export class HandlerRegistry {
     this.actions.set(handler.type, handler);
   }
 
-  getCondition(type: string): ConditionHandler | undefined {
+  getCondition(type: string): typeof Condition | undefined {
     return this.conditions.get(type);
   }
 
@@ -21,7 +21,7 @@ export class HandlerRegistry {
     return this.actions.get(type);
   }
 
-  allConditions(): ConditionHandler[] {
+  allConditions(): typeof Condition[] {
     return Array.from(this.conditions.values());
   }
 

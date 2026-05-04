@@ -1,9 +1,9 @@
 <script lang="ts">
   import { setIcon } from "obsidian";
-  import type FoldererPlugin from "../../../main";
-  import type { MonitoredFolder } from "../../monitored-folder";
-  import type { Rule } from "../../../types";
-  import { RuleModal } from "../rules/rule-modal";
+  import type FoldererPlugin from "../../main";
+  import type { MonitoredFolder } from "../monitored-folder";
+  import type { Rule } from "../../types";
+  import { RuleModal } from "../rule-modal";
 
   interface Props {
     plugin: FoldererPlugin;
@@ -12,21 +12,6 @@
   }
 
   let { plugin, folder, rule }: Props = $props();
-
-  function buildDescription(): string {
-    const parts: string[] = [`on ${rule.trigger.type}`];
-    if (rule.condition) {
-      const condHandler = plugin.engine.registry.getCondition(
-        rule.condition.type,
-      );
-      parts.push(`if ${condHandler?.label ?? rule.condition.type}`);
-    }
-    const actHandler = plugin.engine.registry.getAction(rule.action.type);
-    parts.push(`→ ${actHandler?.label ?? rule.action.type}`);
-    return parts.join(" ");
-  }
-
-  let description = $derived(buildDescription());
 
   async function toggleEnabled() {
     folder.modifyRule({ ...$state.snapshot(rule), enabled: !rule.enabled });
@@ -49,12 +34,35 @@
   function trashIcon(el: HTMLElement) {
     setIcon(el, "trash");
   }
+
+  function chevronUpIcon(el: HTMLElement) {
+    setIcon(el, "chevron-up");
+  }
+
+  function chevronDownIcon(el: HTMLElement) {
+    setIcon(el, "chevron-down");
+  }
 </script>
 
 <div class="setting-item">
+  <div class="setting-item-control ordering-controls">
+    <div>
+      <button
+        class="clickable-icon extra-setting-button"
+        onclick={() => {}}
+        aria-label="Move rule up"
+        use:chevronUpIcon
+      ></button>
+      <button
+        class="clickable-icon extra-setting-button"
+        onclick={() => {}}
+        aria-label="Move rule down"
+        use:chevronDownIcon
+      ></button>
+    </div>
+  </div>
   <div class="setting-item-info">
     <div class="setting-item-name">{rule.name || "Unnamed"}</div>
-    <div class="setting-item-description">{description}</div>
   </div>
   <div class="setting-item-control">
     <div class="checkbox-container" class:is-enabled={rule.enabled}>
@@ -79,3 +87,9 @@
     ></button>
   </div>
 </div>
+
+<style>
+  .ordering-controls {
+    flex-grow: 0;
+  }
+</style>

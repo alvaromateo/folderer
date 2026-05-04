@@ -1,4 +1,4 @@
-import type { MonitoredFolder } from "./settings/monitored-folder";
+import type { MonitoredFolder } from "./settings/folder-settings";
 
 export function getParentFolder(filePath: string): string {
   const lastSlash = filePath.lastIndexOf("/");

@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "folder-path";
+export type FieldType = "text" | "textarea" | "folder-path" | "none";
 
 export interface FieldDescriptor {
   key: string;
