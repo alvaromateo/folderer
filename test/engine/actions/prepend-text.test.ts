@@ -1,9 +1,9 @@
 import type { TFile } from "obsidian";
 import { describe, expect, it, vi } from "vitest";
-import { prependTextAction } from "../../../src/engine/actions/prepend-text";
-import type { Action } from "../../../src/types";
+import { prependTextExecutor } from "../../../src/engine/actions/prepend-text";
+import type { ActionData } from "../../../src/types";
 
-function mkAction(text: string): Action {
+function mkAction(text: string): ActionData {
   return { type: "prepend-text", params: { text } };
 }
 
@@ -13,18 +13,18 @@ function mkApp(
   return { vault: { process } } as unknown as import("obsidian").App;
 }
 
-describe("prependTextAction metadata", () => {
+describe("prependTextExecutor metadata", () => {
   it("has type prepend-text", () => {
-    expect(prependTextAction.type).toBe("prepend-text");
+    expect(prependTextExecutor.type).toBe("prepend-text");
   });
 
   it("exposes a text field with key 'text'", () => {
-    expect(prependTextAction.fields).toHaveLength(1);
-    expect(prependTextAction.fields[0]?.key).toBe("text");
+    expect(prependTextExecutor.fields).toHaveLength(1);
+    expect(prependTextExecutor.fields[0]?.key).toBe("text");
   });
 });
 
-describe("prependTextAction.execute", () => {
+describe("prependTextExecutor.execute", () => {
   it("calls vault.process with a function that prepends text", async () => {
     let transformer: ((c: string) => string) | undefined;
     const process = vi.fn(async (_file: unknown, fn: (c: string) => string) => {
@@ -32,7 +32,7 @@ describe("prependTextAction.execute", () => {
     });
     const app = mkApp(process);
 
-    await prependTextAction.execute(
+    await prependTextExecutor.execute(
       {} as unknown as TFile,
       mkAction("header"),
       app,
@@ -49,7 +49,7 @@ describe("prependTextAction.execute", () => {
     });
     const app = mkApp(process);
 
-    await prependTextAction.execute(
+    await prependTextExecutor.execute(
       {} as unknown as TFile,
       { type: "prepend-text", params: {} },
       app,

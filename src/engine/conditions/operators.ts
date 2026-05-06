@@ -1,6 +1,11 @@
 import type { FieldDescriptor } from "../field-descriptor";
 
-export type OperatorType = "exists" | "contains" | "starts" | "ends" | "matches";
+export type OperatorType =
+  | "exists"
+  | "contains"
+  | "starts"
+  | "ends"
+  | "matches";
 
 export interface OperatorDescriptor extends FieldDescriptor {
   key: OperatorType;
@@ -43,7 +48,6 @@ export const StringValueOperators: OperatorDescriptor[] = [
   },
 ] as const;
 
-
 export class StringValueOperator {
   public op: OperatorDescriptor;
 
@@ -67,7 +71,7 @@ export class StringValueOperator {
         break;
       case "contains":
         result =
-          key !== undefined && value !== undefined && key.contains(value);
+          key !== undefined && value !== undefined && key.includes(value);
         break;
       case "starts":
         result =

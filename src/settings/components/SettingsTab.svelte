@@ -2,7 +2,7 @@
   import { onDestroy, onMount, untrack } from "svelte";
   import { Notice } from "obsidian";
   import type FoldererPlugin from "../../main";
-  import { MonitoredFolder } from "../monitored-folder";
+  import { MonitoredFolder } from "../folder-settings";
   import FolderSection from "./FolderSection.svelte";
 
   interface Props {

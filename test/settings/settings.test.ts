@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { MonitoredFolder } from "../../src/settings/monitored-folder";
+import { MonitoredFolder } from "../../src/settings/folder-settings";
 import { FoldererSettings } from "../../src/settings/settings";
-import type { Rule } from "../../src/types";
+import type { RuleData } from "../../src/types";
 
 // Polyfill Obsidian Array extensions used by the classes under test
 // biome-ignore lint/suspicious/noExplicitAny: pollyfill
@@ -15,7 +15,7 @@ import type { Rule } from "../../src/types";
   return this;
 };
 
-function mkFolder(path: string, rules: Rule[] = []): MonitoredFolder {
+function mkFolder(path: string, rules: RuleData[] = []): MonitoredFolder {
   return new MonitoredFolder(path, rules);
 }
 

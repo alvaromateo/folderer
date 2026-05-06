@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { MonitoredFolder } from "../../src/settings/monitored-folder";
-import type { Rule } from "../../src/types";
+import { MonitoredFolder } from "../../src/settings/folder-settings";
+import type { RuleData } from "../../src/types";
 
 // Polyfill Obsidian Array extensions used by the classes under test
 // biome-ignore lint/suspicious/noExplicitAny: pollyfill
@@ -14,13 +14,13 @@ import type { Rule } from "../../src/types";
   return this;
 };
 
-function mkRule(id: string, name = "Rule"): Rule {
+function mkRule(id: string, name = "Rule"): RuleData {
   return {
     id,
     name,
     enabled: true,
     trigger: { type: "create" },
-    action: { type: "append-text", params: { text: "folderer" } },
+    actions: [{ type: "append-text", params: { text: "folderer" } }],
   };
 }
 

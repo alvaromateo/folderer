@@ -1,14 +1,14 @@
 <script lang="ts">
   import { setIcon } from "obsidian";
   import type FoldererPlugin from "../../main";
-  import type { MonitoredFolder } from "../monitored-folder";
-  import type { Rule } from "../../types";
+  import type { MonitoredFolder } from "../folder-settings";
+  import type { RuleData } from "../../types";
   import { RuleModal } from "../rule-modal";
 
   interface Props {
     plugin: FoldererPlugin;
     folder: MonitoredFolder;
-    rule: Rule;
+    rule: RuleData;
   }
 
   let { plugin, folder, rule }: Props = $props();

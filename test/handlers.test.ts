@@ -5,7 +5,7 @@ import {
   isCrossfolderMove,
   isInMonitoredFolder,
 } from "../src/handlers";
-import { MonitoredFolder } from "../src/settings/monitored-folder";
+import { MonitoredFolder } from "../src/settings/folder-settings";
 
 function mkFolders(...paths: string[]): MonitoredFolder[] {
   return paths.map((path) => new MonitoredFolder(path));

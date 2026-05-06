@@ -1,7 +1,7 @@
 import { Modal } from "obsidian";
 import { mount, unmount } from "svelte";
 import type FoldererPlugin from "../main";
-import type { Rule } from "../types";
+import type { RuleData } from "../types";
 import RuleModalContent from "./components/rule-modal/Content.svelte";
 import type { MonitoredFolder } from "./folder-settings";
 
@@ -11,7 +11,7 @@ export class RuleModal extends Modal {
   constructor(
     private plugin: FoldererPlugin,
     private monitoredFolder: MonitoredFolder,
-    private selectedRule: Rule | null,
+    private selectedRule: RuleData | null,
   ) {
     super(plugin.app);
   }

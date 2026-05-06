@@ -2,7 +2,7 @@ import type { MonitoredFolderData, RuleData } from "../types";
 
 type RenderCallback = (rules: RuleData[]) => void;
 
-export class MonitoredFolderSettings {
+export class MonitoredFolder {
   private renderCallbacks: Set<RenderCallback> = new Set();
 
   constructor(

@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ActionHandler } from "../../src/engine/action-handler";
-import type { ConditionHandler } from "../../src/engine/condition-handler";
+import type { ActionExecutor } from "../../src/engine/actions/executor";
+import type { ConditionEvaluator } from "../../src/engine/conditions/evaluator";
 import { HandlerRegistry } from "../../src/engine/registry";
 import { RuleEngine } from "../../src/engine/rule-engine";
-import type { Rule } from "../../src/types";
+import type { RuleData } from "../../src/types";
 
 // Polyfill Obsidian Array extensions
 // biome-ignore lint/suspicious/noExplicitAny: polyfill
@@ -25,26 +25,26 @@ function mkApp() {
   return {} as unknown as import("obsidian").App;
 }
 
-function mkRule(overrides: Partial<Rule> = {}): Rule {
+function mkRule(overrides: Partial<RuleData> = {}): RuleData {
   return {
     id: "r1",
     name: "Test rule",
     enabled: true,
     trigger: { type: "create" },
-    action: { type: "append-text", params: { text: "folderer" } },
+    actions: [{ type: "append-text", params: { text: "folderer" } }],
     ...overrides,
   };
 }
 
-function mkFolder(rules: Rule[]) {
+function mkFolder(rules: RuleData[]) {
   return {
     rules,
-  } as unknown as import("../../src/settings/monitored-folder").MonitoredFolder;
+  } as unknown as import("../../src/settings/folder-settings").MonitoredFolder;
 }
 
 function mkRegistry(
-  condition?: ConditionHandler,
-  action?: ActionHandler,
+  condition?: ConditionEvaluator,
+  action?: ActionExecutor,
 ): HandlerRegistry {
   const registry = new HandlerRegistry();
   if (condition) registry.registerCondition(condition);
@@ -54,7 +54,7 @@ function mkRegistry(
 
 function mkAction(
   executeFn = vi.fn().mockResolvedValue(undefined),
-): ActionHandler {
+): ActionExecutor {
   return {
     type: "append-text",
     label: "Append",
@@ -63,10 +63,10 @@ function mkAction(
   };
 }
 
-function mkCondition(evaluateFn: () => boolean): ConditionHandler {
+function mkCondition(evaluateFn: () => boolean): ConditionEvaluator {
   return {
-    type: "filename-matches",
-    label: "Filename matches",
+    type: "file-name",
+    label: "File name",
     fields: [],
     evaluate: evaluateFn,
   };
@@ -106,18 +106,18 @@ describe("RuleEngine.runRules", () => {
     expect(execute).not.toHaveBeenCalled();
   });
 
-  it("runs the action when there is no condition", async () => {
+  it("runs the action when there are no conditions", async () => {
     const execute = vi.fn().mockResolvedValue(undefined);
     const registry = mkRegistry(undefined, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
-    const folder = mkFolder([mkRule({ condition: undefined })]);
+    const folder = mkFolder([mkRule({ conditions: [] })]);
 
     await engine.runRules(mkFile(), folder, "create");
 
     expect(execute).toHaveBeenCalledOnce();
   });
 
-  it("skips the action when the condition returns false", async () => {
+  it("skips the action when a condition returns false", async () => {
     const execute = vi.fn().mockResolvedValue(undefined);
     const registry = mkRegistry(
       mkCondition(() => false),
@@ -125,7 +125,9 @@ describe("RuleEngine.runRules", () => {
     );
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      condition: { type: "filename-matches", params: { pattern: "x" } },
+      conditions: [
+        { type: "file-name", operator: "matches", params: { value: "x" } },
+      ],
     });
     const folder = mkFolder([rule]);
 
@@ -142,7 +144,9 @@ describe("RuleEngine.runRules", () => {
     );
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      condition: { type: "filename-matches", params: { pattern: ".*" } },
+      conditions: [
+        { type: "file-name", operator: "matches", params: { value: ".*" } },
+      ],
     });
     const folder = mkFolder([rule]);
 
@@ -157,7 +161,7 @@ describe("RuleEngine.runRules", () => {
     const registry = mkRegistry(undefined, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      condition: { type: "filename-matches", params: {} },
+      conditions: [{ type: "file-name", params: {} }],
     });
     const folder = mkFolder([rule]);
 
@@ -186,12 +190,12 @@ describe("RuleEngine.runRules", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const execute = vi.fn();
     const throwingCondition = mkCondition(() => {
-      throw new Error("bad regex");
+      throw new Error("bad eval");
     });
     const registry = mkRegistry(throwingCondition, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      condition: { type: "filename-matches", params: { pattern: "[" } },
+      conditions: [{ type: "file-name", params: {} }],
     });
     const folder = mkFolder([rule]);
 
@@ -221,7 +225,7 @@ describe("RuleEngine.runRules", () => {
 
   it("processes multiple rules in sequence", async () => {
     const calls: string[] = [];
-    const makeAction = (id: string): ActionHandler => ({
+    const makeAction = (id: string): ActionExecutor => ({
       type: `action-${id}`,
       label: id,
       fields: [],
@@ -236,11 +240,143 @@ describe("RuleEngine.runRules", () => {
     registry.registerAction(a2);
     const engine = new RuleEngine(registry, mkApp());
     const folder = mkFolder([
-      mkRule({ id: "r1", action: { type: "action-1", params: {} } }),
-      mkRule({ id: "r2", action: { type: "action-2", params: {} } }),
+      mkRule({ id: "r1", actions: [{ type: "action-1", params: {} }] }),
+      mkRule({ id: "r2", actions: [{ type: "action-2", params: {} }] }),
     ]);
 
     await engine.runRules(mkFile(), folder, "create");
+
+    expect(calls).toEqual(["1", "2"]);
+  });
+
+  it("evaluates all conditions with AND semantics (all must pass)", async () => {
+    const execute = vi.fn().mockResolvedValue(undefined);
+    const passingCondition = mkCondition(() => true);
+    const failingCondition: ConditionEvaluator = {
+      type: "file-path",
+      label: "File path",
+      fields: [],
+      evaluate: () => false,
+    };
+    const registry = new HandlerRegistry();
+    registry.registerCondition(passingCondition);
+    registry.registerCondition(failingCondition);
+    registry.registerAction(mkAction(execute));
+    const engine = new RuleEngine(registry, mkApp());
+    const rule = mkRule({
+      conditions: [
+        { type: "file-name", params: {} },
+        { type: "file-path", params: {} },
+      ],
+    });
+
+    await engine.runRules(mkFile(), mkFolder([rule]), "create");
+
+    expect(execute).not.toHaveBeenCalled();
+  });
+
+  it("handles composite 'all' condition — passes when all children pass", async () => {
+    const execute = vi.fn().mockResolvedValue(undefined);
+    const evaluator = mkCondition(() => true);
+    const registry = mkRegistry(evaluator, mkAction(execute));
+    const engine = new RuleEngine(registry, mkApp());
+    const rule = mkRule({
+      conditions: [
+        {
+          type: "all",
+          conditions: [
+            { type: "file-name", params: {} },
+            { type: "file-name", params: {} },
+          ],
+        },
+      ],
+    });
+
+    await engine.runRules(mkFile(), mkFolder([rule]), "create");
+
+    expect(execute).toHaveBeenCalledOnce();
+  });
+
+  it("handles composite 'any' condition — passes when at least one child passes", async () => {
+    const execute = vi.fn().mockResolvedValue(undefined);
+    const passingEvaluator = mkCondition(() => true);
+    const failingEvaluator: ConditionEvaluator = {
+      type: "file-path",
+      label: "File path",
+      fields: [],
+      evaluate: () => false,
+    };
+    const registry = new HandlerRegistry();
+    registry.registerCondition(passingEvaluator);
+    registry.registerCondition(failingEvaluator);
+    registry.registerAction(mkAction(execute));
+    const engine = new RuleEngine(registry, mkApp());
+    const rule = mkRule({
+      conditions: [
+        {
+          type: "any",
+          conditions: [
+            { type: "file-name", params: {} },
+            { type: "file-path", params: {} },
+          ],
+        },
+      ],
+    });
+
+    await engine.runRules(mkFile(), mkFolder([rule]), "create");
+
+    expect(execute).toHaveBeenCalledOnce();
+  });
+
+  it("handles composite 'none' condition — passes when no children pass", async () => {
+    const execute = vi.fn().mockResolvedValue(undefined);
+    const failingEvaluator = mkCondition(() => false);
+    const registry = mkRegistry(failingEvaluator, mkAction(execute));
+    const engine = new RuleEngine(registry, mkApp());
+    const rule = mkRule({
+      conditions: [
+        {
+          type: "none",
+          conditions: [{ type: "file-name", params: {} }],
+        },
+      ],
+    });
+
+    await engine.runRules(mkFile(), mkFolder([rule]), "create");
+
+    expect(execute).toHaveBeenCalledOnce();
+  });
+
+  it("executes multiple actions in sequence", async () => {
+    const calls: string[] = [];
+    const action1: ActionExecutor = {
+      type: "action-1",
+      label: "1",
+      fields: [],
+      execute: vi.fn(async () => {
+        calls.push("1");
+      }),
+    };
+    const action2: ActionExecutor = {
+      type: "action-2",
+      label: "2",
+      fields: [],
+      execute: vi.fn(async () => {
+        calls.push("2");
+      }),
+    };
+    const registry = new HandlerRegistry();
+    registry.registerAction(action1);
+    registry.registerAction(action2);
+    const engine = new RuleEngine(registry, mkApp());
+    const rule = mkRule({
+      actions: [
+        { type: "action-1", params: {} },
+        { type: "action-2", params: {} },
+      ],
+    });
+
+    await engine.runRules(mkFile(), mkFolder([rule]), "create");
 
     expect(calls).toEqual(["1", "2"]);
   });

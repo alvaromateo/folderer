@@ -1,11 +1,12 @@
-import type { App, TFile } from "obsidian";
+import { Notice, type App, type TFile } from "obsidian";
 import type { MonitoredFolder } from "../settings/folder-settings";
-import type { TriggerType } from "../types";
+import type { ActionData, ConditionData, TriggerType } from "../types";
+import { appendTextExecutor } from "./actions/append-text";
+import { prependTextExecutor } from "./actions/prepend-text";
+import { fileNameEvaluator } from "./conditions/file-name";
+import { filePathEvaluator } from "./conditions/file-path";
+import { propertyEvaluator } from "./conditions/property";
 import { HandlerRegistry } from "./registry";
-import { appendTextAction } from "./actions/append-text";
-import { prependTextAction } from "./actions/prepend-text";
-import { FileNameCondition } from "./conditions/file-name";
-import type { Rule } from "../model/rule";
 
 export class RuleEngine {
   constructor(
@@ -21,64 +22,82 @@ export class RuleEngine {
     for (const rule of folder.rules) {
       if (!rule.enabled) continue;
       if (rule.trigger.type !== triggerType) continue;
-      if (!(await this.conditionPasses(file, rule))) continue;
-      await this.executeAction(file, rule);
+      if (rule.conditions) {
+        const testConditions = this.evaluateCondition(rule.conditions, file);
+        if (!testConditions) continue;
+      }
+      for (const action of rule.actions ?? []) {
+        await this.executeAction(file, action, rule.name);
+      }
     }
   }
 
-  private async conditionPasses(file: TFile, rule: Rule): Promise<boolean> {
-    if (!rule.condition) return true;
-    const ConditionCls = this.registry.getCondition(rule.condition.type);
-    if (!ConditionCls) {
-      console.warn(
-        `Folderer: unknown condition type "${rule.condition.type}" in rule "${rule.name}"`,
+  private evaluateCondition(data: ConditionData, file: TFile): boolean {
+    if (data.type === "all") {
+      return (data.conditions ?? []).every((c) =>
+        this.evaluateCondition(c, file),
       );
+    }
+    if (data.type === "any") {
+      return (data.conditions ?? []).some((c) =>
+        this.evaluateCondition(c, file),
+      );
+    }
+    if (data.type === "none") {
+      return !(data.conditions ?? []).some((c) =>
+        this.evaluateCondition(c, file),
+      );
+    }
+
+    const evaluator = this.registry.getCondition(data.type);
+    if (!evaluator) {
+      console.warn(`Folderer: unknown condition type "${data.type}"`);
       return false;
     }
     try {
-      const handler = new ConditionCls(rule.condition)
-      return handler.evaluate(file, rule.condition);
+      return evaluator.evaluate(file, data, this.app);
     } catch (err) {
-      console.warn(
-        `Folderer: condition evaluation failed for rule "${rule.name}"`,
-        err,
-      );
+      console.error("Folderer: condition evaluation error", err);
+      new Notice(`Condition evaluation error. Check DevTools for details.`);
       return false;
     }
   }
 
-  private async executeAction(file: TFile, rule: Rule): Promise<void> {
-    const handler = this.registry.getAction(rule.action.type);
-    if (!handler) {
+  private async executeAction(
+    file: TFile,
+    data: ActionData,
+    ruleName: string,
+  ): Promise<void> {
+    const executor = this.registry.getAction(data.type);
+    if (!executor) {
       console.warn(
-        `Folderer: unknown action type "${rule.action.type}" in rule "${rule.name}"`,
+        `Folderer: unknown action type "${data.type}" in rule "${ruleName}"`,
       );
       return;
     }
     try {
-      await handler.execute(file, rule.action, this.app);
+      await executor.execute(file, data, this.app);
     } catch (err) {
       console.error(
-        `Folderer: action failed for rule "${rule.name}" on ${file.path}`,
+        `Folderer: action failed for rule "${ruleName}" on ${file.path}`,
         err,
       );
+      new Notice(`Condition evaluation error. Check DevTools for details.`);
     }
   }
 }
 
 let _ruleEngine: RuleEngine | undefined;
 
-export const getRuleEngine = () => {
-  return _ruleEngine;
-}
+export const getRuleEngine = () => _ruleEngine;
 
 export const createRuleEngine = (app: App): RuleEngine => {
   const registry = new HandlerRegistry();
-  // conditions
-  registry.registerCondition(new FileNameCondition());
-  // actions
-  registry.registerAction(appendTextAction);
-  registry.registerAction(prependTextAction);
+  registry.registerCondition(fileNameEvaluator);
+  registry.registerCondition(filePathEvaluator);
+  registry.registerCondition(propertyEvaluator);
+  registry.registerAction(appendTextExecutor);
+  registry.registerAction(prependTextExecutor);
   _ruleEngine = new RuleEngine(registry, app);
   return _ruleEngine;
-}
+};

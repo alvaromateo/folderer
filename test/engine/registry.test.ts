@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { ActionHandler } from "../../src/engine/action-handler";
-import type { ConditionHandler } from "../../src/engine/condition-handler";
+import type { ActionExecutor } from "../../src/engine/actions/executor";
+import type { ConditionEvaluator } from "../../src/engine/conditions/evaluator";
 import { HandlerRegistry } from "../../src/engine/registry";
 
-function mkCondition(type: string): ConditionHandler {
+function mkCondition(type: string): ConditionEvaluator {
   return {
     type,
     label: `Condition ${type}`,
@@ -12,7 +12,7 @@ function mkCondition(type: string): ConditionHandler {
   };
 }
 
-function mkAction(type: string): ActionHandler {
+function mkAction(type: string): ActionExecutor {
   return {
     type,
     label: `Action ${type}`,
@@ -24,9 +24,9 @@ function mkAction(type: string): ActionHandler {
 describe("HandlerRegistry conditions", () => {
   it("returns a registered condition by type", () => {
     const registry = new HandlerRegistry();
-    const handler = mkCondition("filename-matches");
+    const handler = mkCondition("file-name");
     registry.registerCondition(handler);
-    expect(registry.getCondition("filename-matches")).toBe(handler);
+    expect(registry.getCondition("file-name")).toBe(handler);
   });
 
   it("returns undefined for an unregistered condition type", () => {
@@ -36,11 +36,11 @@ describe("HandlerRegistry conditions", () => {
 
   it("overwrites when the same condition type is registered twice", () => {
     const registry = new HandlerRegistry();
-    const first = mkCondition("filename-matches");
-    const second = mkCondition("filename-matches");
+    const first = mkCondition("file-name");
+    const second = mkCondition("file-name");
     registry.registerCondition(first);
     registry.registerCondition(second);
-    expect(registry.getCondition("filename-matches")).toBe(second);
+    expect(registry.getCondition("file-name")).toBe(second);
   });
 
   it("allConditions returns all registered conditions in insertion order", () => {

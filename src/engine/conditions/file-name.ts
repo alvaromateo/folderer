@@ -1,42 +1,16 @@
-import type { TFile } from "obsidian";
+import type { App, TFile } from "obsidian";
 import { CONDITION_FILE_NAME } from "../../constants";
-//import type { Condition } from "../../types";
-//import type { ConditionHandler } from "../condition-handler";
-import { SingleCondition } from "./condition";
-import { StringValueOperator } from "./operators";
+import type { ConditionData } from "../../types";
+import type { ConditionEvaluator } from "./evaluator";
+import { StringValueOperator, StringValueOperators } from "./operators";
 
-/*
-export const filenameMatchesCondition: ConditionHandler = {
-  type: "filename-matches",
-  label: "Filename matches pattern",
-  fields: [
-    {
-      key: "pattern",
-      label: "Pattern",
-      description: "Regex matched against the filename (without path)",
-      placeholder: "rule-.*\\.md",
-      fieldType: "text",
-    },
-  ],
-
-  evaluate(file: TFile, condition: Condition): boolean {
-    const pattern = condition.params.pattern ?? "";
-    return new RegExp(pattern).test(file.name);
+export const fileNameEvaluator: ConditionEvaluator = {
+  type: CONDITION_FILE_NAME,
+  label: "File name",
+  operators: StringValueOperators,
+  fields: [],
+  evaluate(file: TFile, data: ConditionData, _app: App): boolean {
+    const op = new StringValueOperator(data.operator ?? "");
+    return op.evaluate(file.name, data.params?.value);
   },
 };
-*/
-
-export class FileNameCondition extends SingleCondition {
-  static type: string = "file-name";
-  static label: string = "File name";
-
-  constructor(operator: string, params: Record<string, string>) {
-    super(CONDITION_FILE_NAME, operator, params);
-  }
-
-  public evaluate(file: TFile): boolean {
-    const op = new StringValueOperator(this.operator);
-    const value = this.params.value;
-    return op.evaluate(file.name, value);
-  }
-}

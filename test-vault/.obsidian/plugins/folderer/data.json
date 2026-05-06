@@ -49,7 +49,7 @@
         {
           "id": "52bdef11-e86e-43f5-ad70-bebc16ba045e",
           "name": "Awesome",
-          "enabled": true,
+          "enabled": false,
           "trigger": {
             "type": "create"
           },

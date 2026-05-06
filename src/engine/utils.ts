@@ -1,11 +1,11 @@
 export function getFrontMatterString(
   fm: Record<string, unknown>,
-  key: string
+  key: string,
 ): string | undefined {
   if (!fm) return;
   // string
-  if (typeof fm[key] === "string") { 
-    return fm[key]
+  if (typeof fm[key] === "string") {
+    return fm[key];
   }
   // number
   else if (typeof fm[key] === "number") {

@@ -1,7 +1,7 @@
 import type { FoldererSettingsData } from "../types";
-import { MonitoredFolderSettings } from "./folder-settings";
+import { MonitoredFolder } from "./folder-settings";
 
-type RenderCallback = (folders: MonitoredFolderSettings[]) => void;
+type RenderCallback = (folders: MonitoredFolder[]) => void;
 
 export class FoldererSettings {
   private renderCallbacks: Set<RenderCallback> = new Set();
@@ -20,11 +20,11 @@ export class FoldererSettings {
     this.renderCallbacks.delete(callback);
   }
 
-  findFolder(path: string): MonitoredFolderSettings | undefined {
+  findFolder(path: string): MonitoredFolder | undefined {
     return this._monitoredFolders.filter((mf) => mf.path === path).first();
   }
 
-  addFolder(folder: MonitoredFolderSettings): void {
+  addFolder(folder: MonitoredFolder): void {
     this._monitoredFolders.push(folder);
     this.renderCallbacks.forEach((cb) => {
       cb(this._monitoredFolders);
@@ -37,7 +37,7 @@ export class FoldererSettings {
 
   static fromJSON(data: FoldererSettingsData): FoldererSettings {
     return new FoldererSettings(
-      data.monitoredFolders.map(MonitoredFolderSettings.fromJSON),
+      data.monitoredFolders.map(MonitoredFolder.fromJSON),
     );
   }
 

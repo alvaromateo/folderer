@@ -1,31 +1,31 @@
-import type { ActionHandler } from "./action-handler";
-import type { Condition } from "./conditions/condition";
+import type { ActionExecutor } from "./actions/executor";
+import type { ConditionEvaluator } from "./conditions/evaluator";
 
 export class HandlerRegistry {
-  private conditions = new Map<string, typeof Condition>();
-  private actions = new Map<string, ActionHandler>();
+  private conditions = new Map<string, ConditionEvaluator>();
+  private actions = new Map<string, ActionExecutor>();
 
-  registerCondition(handler: typeof Condition): void {
+  registerCondition(handler: ConditionEvaluator): void {
     this.conditions.set(handler.type, handler);
   }
 
-  registerAction(handler: ActionHandler): void {
+  registerAction(handler: ActionExecutor): void {
     this.actions.set(handler.type, handler);
   }
 
-  getCondition(type: string): typeof Condition | undefined {
+  getCondition(type: string): ConditionEvaluator | undefined {
     return this.conditions.get(type);
   }
 
-  getAction(type: string): ActionHandler | undefined {
+  getAction(type: string): ActionExecutor | undefined {
     return this.actions.get(type);
   }
 
-  allConditions(): typeof Condition[] {
+  allConditions(): ConditionEvaluator[] {
     return Array.from(this.conditions.values());
   }
 
-  allActions(): ActionHandler[] {
+  allActions(): ActionExecutor[] {
     return Array.from(this.actions.values());
   }
 }

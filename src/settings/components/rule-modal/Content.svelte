@@ -1,21 +1,22 @@
 <script lang="ts">
   import { Notice, setIcon } from "obsidian";
   import { untrack } from "svelte";
-  import ConditionRow from "./ConditionRow.svelte";
   import type FoldererPlugin from "../../../main";
-  import type { MonitoredFolder } from "../../monitored-folder";
+  import type { MonitoredFolder } from "../../folder-settings";
   import type {
-    Action,
+    ActionData,
     ConditionData,
-    Rule,
+    RootConditionData,
+    RuleData,
     Trigger,
     TriggerType,
   } from "../../../types";
+  import Conditions from "./Conditions.svelte";
 
   interface Props {
     plugin: FoldererPlugin;
     folder: MonitoredFolder;
-    selectedRule: Rule | null;
+    selectedRule: RuleData | null;
     onClose: () => void;
   }
 
@@ -23,18 +24,29 @@
 
   const isNew = untrack(() => selectedRule === null);
 
-  function deepCopyRule(r: Rule): Rule {
+  function deepCopyCondition(
+    condition: ConditionData
+  ): ConditionData {
     return {
-      ...r,
-      trigger: { ...r.trigger },
-      condition: r.condition
-        ? { ...r.condition, params: { ...r.condition.params } }
-        : undefined,
-      action: { ...r.action, params: { ...r.action.params } },
+      ...condition,
     };
   }
 
-  let rule = $state<Rule>(
+  function deepCopyRule(r: RuleData): RuleData {
+    const copiedConditions = r.conditions?.conditions?.map(
+      (cond) => deepCopyCondition(cond)
+    ) ?? [];
+    return {
+      ...r,
+      trigger: { ...r.trigger },
+      conditions: r.conditions
+        ? { ...r.conditions, conditions: copiedConditions }
+        : undefined,
+      actions: r.actions?.map((a) => ({ ...a, params: { ...a.params } })),
+    };
+  }
+
+  let rule = $state<RuleData>(
     untrack(() =>
       isNew
         ? {
@@ -42,29 +54,42 @@
             name: "",
             enabled: true,
             trigger: { type: "create" } as Trigger,
-            action: {
-              type: (plugin.engine.registry.allActions()[0]?.type ??
-                "append-text") as Action["type"],
-              params: {},
-            },
+            conditions: undefined,
+            actions: [
+              {
+                type:
+                  plugin.engine.registry.allActions()[0]?.type ?? "append-text",
+                params: {},
+              },
+            ],
           }
         : deepCopyRule(selectedRule!),
     ),
   );
 
-  let conditions = $state<ConditionData[]>([]);
+  let firstAction = $derived<ActionData>(
+    rule.actions?.[0] ?? { type: "append-text", params: {} },
+  );
 
   let actionFields = $derived(
-    plugin.engine.registry.getAction(rule.action.type)?.fields ?? [],
+    plugin.engine.registry.getAction(firstAction.type)?.fields ?? [],
   );
 
   function onTriggerChange(e: Event) {
     rule.trigger.type = (e.target as HTMLSelectElement).value as TriggerType;
   }
 
+  function onRootConditionChange(e: Event) {
+    if (rule.conditions) {
+      const target = e.target as HTMLSelectElement;
+      rule.conditions.type = target.value as RootConditionData["type"];
+    }
+  }
+
   function onActionTypeChange(e: Event) {
     const v = (e.target as HTMLSelectElement).value;
-    rule.action = { type: v as Action["type"], params: {} };
+    if (!rule.actions) rule.actions = [];
+    rule.actions[0] = { type: v, params: {} };
   }
 
   async function save() {
@@ -73,9 +98,9 @@
       return;
     }
 
-    const actionHandler = plugin.engine.registry.getAction(rule.action.type);
+    const actionHandler = plugin.engine.registry.getAction(firstAction.type);
     for (const field of actionHandler?.fields ?? []) {
-      if (!(rule.action.params[field.key] ?? "").trim()) {
+      if (!(firstAction.params[field.key] ?? "").trim()) {
         new Notice(`${field.label} cannot be empty.`);
         return;
       }
@@ -94,27 +119,26 @@
     setIcon(el, "plus");
   }
 
-  function addConditionRow() {
-    conditions.push({
-      type: "none",
+  function trashIcon(el: HTMLElement) {
+    setIcon(el, "trash");
+  }
+
+  function addConditions() {
+    // default selected "all" conditions (as it is the most common)
+    rule.conditions = {
+      type: "all",
       conditions: [],
-    });
+    };
   }
 
-  function removeConditionRow(index: number) {
-    conditions.splice(index, 1);
-  }
-
-  function addActionRow() {
-    return;
-  }
-
-  function removeActionRow() {
-    return;
+  function removeConditions() {
+    rule.conditions = undefined;
   }
 </script>
 
 <section class="rule-modal">
+
+  <!-- Rule name and activation -->
   <div class="setting-item">
     <div class="setting-item-info">
       <div class="setting-item-name">Rule name</div>
@@ -138,6 +162,7 @@
     </div>
   </div>
 
+  <!-- Type of trigger for the rule -->
   <div class="setting-item">
     <div class="setting-item-info">
       <div class="setting-item-name">Trigger</div>
@@ -157,32 +182,56 @@
     </div>
   </div>
 
-  <div class="setting-item">
-    <div class="setting-item-info">
-      <div class="setting-item-name">Conditions</div>
+  <!-- Conditions -->
+  <div class="setting-item multiple-entries">
+    <div class="rule-row heading">
+      <div class="setting-item-info">
+        <div class="setting-item-name">Conditions</div>
+      </div>
+      <div class="setting-item-control">
+        {#if rule.conditions === undefined}
+          <button
+            class="clickable-icon extra-setting-button"
+            onclick={addConditions}
+            aria-label="Add conditions"
+            use:plusIcon
+          ></button>
+        {:else}
+          <button
+            class="clickable-icon extra-setting-button"
+            onclick={removeConditions}
+            aria-label="Remove conditions"
+            use:trashIcon
+          ></button>
+        {/if}
+      </div>
     </div>
-    <div class="setting-item-control">
-      <button
-        class="clickable-icon extra-setting-button"
-        onclick={addConditionRow}
-        aria-label="Edit rule"
-        use:plusIcon
-      ></button>
-    </div>
+
+    {#if rule.conditions}
+      <div class="rule-row">
+        <div class="setting-item-description">
+          Matching conditions
+        </div>
+        <select
+          class="dropdown"
+          value={rule.conditions.type}
+          onchange={onRootConditionChange}
+          aria-label="Root condition type"
+        >
+          <option value="all">All</option>
+          <option value="any">Any</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+
+      <Conditions
+        plugin={plugin}
+        conditions={rule.conditions.conditions}
+      />
+    {/if}
   </div>
 
-  {#if conditions.length > 0}
-    <div>
-      Matching conditions
-    </div>
-  {/if}
-
-  <ol>
-    {#each conditions as condition, i}
-      <ConditionRow plugin={plugin} rule={rule} />
-    {/each}
-  </ol>
-
+  <!-- Actions -->
   <div class="setting-item">
     <div class="setting-item-info">
       <div class="setting-item-name">Action</div>
@@ -190,7 +239,7 @@
     <div class="setting-item-control">
       <select
         class="dropdown"
-        value={rule.action.type}
+        value={firstAction.type}
         onchange={onActionTypeChange}
         aria-label="Action type"
       >
@@ -213,9 +262,13 @@
         <input
           type="text"
           placeholder={field.placeholder ?? ""}
-          value={rule.action.params[field.key] ?? ""}
+          value={firstAction.params[field.key] ?? ""}
           oninput={(e) => {
-            rule.action.params[field.key] = (e.target as HTMLInputElement).value;
+            if (rule.actions?.[0]) {
+              rule.actions[0].params[field.key] = (
+                e.target as HTMLInputElement
+              ).value;
+            }
           }}
           aria-label={field.label}
         />
@@ -242,6 +295,22 @@
   }
 
   .rule-name-input > input {
+    width: 100%;
+  }
+
+  .multiple-entries {
+    flex-direction: column;
+  }
+
+  .setting-item.multiple-entries > .heading {
+    margin-inline-end: 0;
+  }
+
+  .rule-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items:center;
     width: 100%;
   }
 </style>
