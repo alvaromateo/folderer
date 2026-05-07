@@ -36,6 +36,35 @@
               "text": "Before title"
             }
           }
+        },
+        {
+          "id": "d2baa323-34c9-471c-8369-d46b192c89d6",
+          "name": "best rule",
+          "enabled": true,
+          "trigger": {
+            "type": "create"
+          },
+          "conditions": {
+            "type": "any",
+            "conditions": [
+              {
+                "type": "property",
+                "operator": "starts",
+                "params": {
+                  "property": "modified",
+                  "value": "2026"
+                }
+              }
+            ]
+          },
+          "actions": [
+            {
+              "type": "append-text",
+              "params": {
+                "text": "what is this"
+              }
+            }
+          ]
         }
       ]
     },

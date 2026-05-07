@@ -1,4 +1,4 @@
-import { Notice, type App, type TFile } from "obsidian";
+import { type App, Notice, type TFile } from "obsidian";
 import type { MonitoredFolder } from "../settings/folder-settings";
 import type { ActionData, ConditionData, TriggerType } from "../types";
 import { appendTextExecutor } from "./actions/append-text";

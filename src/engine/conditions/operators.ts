@@ -23,28 +23,28 @@ export const StringValueOperators: OperatorDescriptor[] = [
     label: "contains",
     description: "",
     placeholder: "",
-    fieldType: "none",
+    fieldType: "text",
   },
   {
     key: "starts",
     label: "starts with",
     description: "",
     placeholder: "",
-    fieldType: "none",
+    fieldType: "text",
   },
   {
     key: "ends",
     label: "ends with",
     description: "",
     placeholder: "",
-    fieldType: "none",
+    fieldType: "text",
   },
   {
     key: "matches",
     label: "matches regex",
     description: "",
     placeholder: "",
-    fieldType: "none",
+    fieldType: "text",
   },
 ] as const;
 

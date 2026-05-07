@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { setIcon } from "obsidian";
   import type FoldererPlugin from "../../main";
   import type { MonitoredFolder } from "../folder-settings";
   import type { RuleData } from "../../types";
   import { RuleModal } from "../rule-modal";
+  import { chevronDownIcon, chevronUpIcon, pencilIcon, trashIcon } from "./icons";
 
   interface Props {
     plugin: FoldererPlugin;
@@ -26,43 +26,29 @@
     folder.removeRule(rule.id);
     await plugin.saveSettings();
   }
-
-  function pencilIcon(el: HTMLElement) {
-    setIcon(el, "pencil");
-  }
-
-  function trashIcon(el: HTMLElement) {
-    setIcon(el, "trash");
-  }
-
-  function chevronUpIcon(el: HTMLElement) {
-    setIcon(el, "chevron-up");
-  }
-
-  function chevronDownIcon(el: HTMLElement) {
-    setIcon(el, "chevron-down");
-  }
 </script>
 
 <div class="setting-item">
-  <div class="setting-item-control ordering-controls">
-    <div>
-      <button
-        class="clickable-icon extra-setting-button"
-        onclick={() => {}}
-        aria-label="Move rule up"
-        use:chevronUpIcon
-      ></button>
-      <button
-        class="clickable-icon extra-setting-button"
-        onclick={() => {}}
-        aria-label="Move rule down"
-        use:chevronDownIcon
-      ></button>
+  <div class="rule-name">
+    <div class="setting-item-control ordering-controls">
+      <div>
+        <button
+          class="clickable-icon extra-setting-button"
+          onclick={() => {}}
+          aria-label="Move rule up"
+          use:chevronUpIcon
+        ></button>
+        <button
+          class="clickable-icon extra-setting-button"
+          onclick={() => {}}
+          aria-label="Move rule down"
+          use:chevronDownIcon
+        ></button>
+      </div>
     </div>
-  </div>
-  <div class="setting-item-info">
-    <div class="setting-item-name">{rule.name || "Unnamed"}</div>
+    <div class="setting-item-info">
+      <div class="setting-item-name">{rule.name || "Unnamed"}</div>
+    </div>
   </div>
   <div class="setting-item-control">
     <div class="checkbox-container" class:is-enabled={rule.enabled}>
@@ -91,5 +77,26 @@
 <style>
   .ordering-controls {
     flex-grow: 0;
+  }
+
+  .rule-name {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+  }
+
+  .rule-name > *:first-child {
+    margin-inline-end: var(--size-4-4);
+  }
+
+  @container (max-width: 340px) {
+    .setting-item .rule-name > .setting-item-control {
+      width: auto;
+    }
+
+    .setting-item .rule-name > .setting-item-info {
+      align-self: auto;
+    }
   }
 </style>

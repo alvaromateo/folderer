@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Notice, setIcon } from "obsidian";
+  import { Notice } from "obsidian";
   import { untrack } from "svelte";
+  import { plusIcon, trashIcon } from "../icons";
   import type FoldererPlugin from "../../../main";
   import type { MonitoredFolder } from "../../folder-settings";
   import type {
@@ -113,14 +114,6 @@
     }
     await plugin.saveSettings();
     onClose();
-  }
-
-  function plusIcon(el: HTMLElement) {
-    setIcon(el, "plus");
-  }
-
-  function trashIcon(el: HTMLElement) {
-    setIcon(el, "trash");
   }
 
   function addConditions() {
