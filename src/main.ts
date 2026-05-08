@@ -55,9 +55,6 @@ export default class FoldererPlugin extends Plugin {
   async loadSettings(): Promise<FoldererSettings> {
     const raw = (await this.loadData()) as unknown;
     if (!raw) return new FoldererSettings();
-    // const migrated = migrateRawData(raw);
-    // const folders = (raw as FoldererSettingsData).monitoredFolders
-    //   .map((entry) => MonitoredFolder.fromJSON(entry));
     return FoldererSettings.fromJSON(raw as FoldererSettingsData);
   }
 
