@@ -4,6 +4,7 @@ import type {
   ConditionData,
   FoldererSettingsData,
   MonitoredFolderData,
+  RootConditionData,
   RuleData,
   TriggerType,
 } from "./types";
@@ -29,6 +30,10 @@ function migrateFolder(f: unknown): MonitoredFolderData {
   };
 }
 
+function wrapConditions(list: ConditionData[]): RootConditionData | undefined {
+  return list.length > 0 ? { type: "all", conditions: list } : undefined;
+}
+
 function migrateRule(r: unknown): RuleData {
   if (!isObject(r)) {
     return {
@@ -36,7 +41,6 @@ function migrateRule(r: unknown): RuleData {
       name: "",
       enabled: false,
       trigger: { type: "create" },
-      conditions: [],
       actions: [{ type: "append-text", params: {} }],
     };
   }
@@ -53,15 +57,36 @@ function migrateRule(r: unknown): RuleData {
         : { type: "create" as const },
   };
 
-  // Already in new RuleData format (has conditions[] or actions[])
-  if (Array.isArray(obj.conditions) || Array.isArray(obj.actions)) {
+  // Current format: conditions is already a RootConditionData object
+  if (isObject(obj.conditions)) {
+    const root = obj.conditions as Record<string, unknown>;
+    const rawType = root.type;
+    const type: "all" | "any" | "none" =
+      rawType === "any" ? "any" : rawType === "none" ? "none" : "all";
+    const inner = Array.isArray(root.conditions)
+      ? (root.conditions as unknown[])
+          .map(migrateConditionData)
+          .filter((c): c is ConditionData => c !== undefined)
+      : [];
     return {
       ...base,
-      conditions: Array.isArray(obj.conditions)
-        ? (obj.conditions as unknown[])
-            .map(migrateConditionData)
-            .filter((c): c is ConditionData => c !== undefined)
+      conditions: { type, conditions: inner },
+      actions: Array.isArray(obj.actions)
+        ? (obj.actions as unknown[]).map(migrateActionData)
         : [],
+    };
+  }
+
+  // Intermediate format: conditions was a flat ConditionData[]
+  if (Array.isArray(obj.conditions) || Array.isArray(obj.actions)) {
+    const condList = Array.isArray(obj.conditions)
+      ? (obj.conditions as unknown[])
+          .map(migrateConditionData)
+          .filter((c): c is ConditionData => c !== undefined)
+      : [];
+    return {
+      ...base,
+      conditions: wrapConditions(condList),
       actions: Array.isArray(obj.actions)
         ? (obj.actions as unknown[]).map(migrateActionData)
         : [],
@@ -69,15 +94,15 @@ function migrateRule(r: unknown): RuleData {
   }
 
   // Old format: single condition? + single action
-  const conditions: ConditionData[] = [];
+  const condList: ConditionData[] = [];
   if (obj.condition != null) {
     const cond = migrateConditionData(obj.condition);
-    if (cond) conditions.push(cond);
+    if (cond) condList.push(cond);
   }
 
   return {
     ...base,
-    conditions,
+    conditions: wrapConditions(condList),
     actions: [migrateActionData(obj.action)],
   };
 }

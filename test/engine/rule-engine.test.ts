@@ -3,7 +3,7 @@ import type { ActionExecutor } from "../../src/engine/actions/executor";
 import type { ConditionEvaluator } from "../../src/engine/conditions/evaluator";
 import { HandlerRegistry } from "../../src/engine/registry";
 import { RuleEngine } from "../../src/engine/rule-engine";
-import type { RuleData } from "../../src/types";
+import type { RootConditionData, RuleData } from "../../src/types";
 
 // Polyfill Obsidian Array extensions
 // biome-ignore lint/suspicious/noExplicitAny: polyfill
@@ -72,6 +72,12 @@ function mkCondition(evaluateFn: () => boolean): ConditionEvaluator {
   };
 }
 
+function allOf(
+  ...conditions: RootConditionData["conditions"]
+): RootConditionData {
+  return { type: "all", conditions };
+}
+
 describe("RuleEngine.runRules", () => {
   it("executes the action when a rule is enabled and trigger matches", async () => {
     const execute = vi.fn().mockResolvedValue(undefined);
@@ -110,7 +116,7 @@ describe("RuleEngine.runRules", () => {
     const execute = vi.fn().mockResolvedValue(undefined);
     const registry = mkRegistry(undefined, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
-    const folder = mkFolder([mkRule({ conditions: [] })]);
+    const folder = mkFolder([mkRule({ conditions: undefined })]);
 
     await engine.runRules(mkFile(), folder, "create");
 
@@ -125,9 +131,11 @@ describe("RuleEngine.runRules", () => {
     );
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [
-        { type: "file-name", operator: "matches", params: { value: "x" } },
-      ],
+      conditions: allOf({
+        type: "file-name",
+        operator: "matches",
+        params: { value: "x" },
+      }),
     });
     const folder = mkFolder([rule]);
 
@@ -144,9 +152,11 @@ describe("RuleEngine.runRules", () => {
     );
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [
-        { type: "file-name", operator: "matches", params: { value: ".*" } },
-      ],
+      conditions: allOf({
+        type: "file-name",
+        operator: "matches",
+        params: { value: ".*" },
+      }),
     });
     const folder = mkFolder([rule]);
 
@@ -161,7 +171,7 @@ describe("RuleEngine.runRules", () => {
     const registry = mkRegistry(undefined, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [{ type: "file-name", params: {} }],
+      conditions: allOf({ type: "file-name", params: {} }),
     });
     const folder = mkFolder([rule]);
 
@@ -186,8 +196,8 @@ describe("RuleEngine.runRules", () => {
     warn.mockRestore();
   });
 
-  it("warns and skips when a condition evaluation throws", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  it("logs an error and skips when a condition evaluation throws", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const execute = vi.fn();
     const throwingCondition = mkCondition(() => {
       throw new Error("bad eval");
@@ -195,16 +205,16 @@ describe("RuleEngine.runRules", () => {
     const registry = mkRegistry(throwingCondition, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [{ type: "file-name", params: {} }],
+      conditions: allOf({ type: "file-name", params: {} }),
     });
     const folder = mkFolder([rule]);
 
     await engine.runRules(mkFile(), folder, "create");
 
-    expect(warn).toHaveBeenCalledOnce();
-    expect(warn.mock.calls[0]?.[0]).toContain("condition evaluation failed");
+    expect(error).toHaveBeenCalledOnce();
+    expect(error.mock.calls[0]?.[0]).toContain("condition evaluation error");
     expect(execute).not.toHaveBeenCalled();
-    warn.mockRestore();
+    error.mockRestore();
   });
 
   it("logs an error but does not throw when an action throws", async () => {
@@ -264,10 +274,10 @@ describe("RuleEngine.runRules", () => {
     registry.registerAction(mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [
+      conditions: allOf(
         { type: "file-name", params: {} },
         { type: "file-path", params: {} },
-      ],
+      ),
     });
 
     await engine.runRules(mkFile(), mkFolder([rule]), "create");
@@ -281,15 +291,13 @@ describe("RuleEngine.runRules", () => {
     const registry = mkRegistry(evaluator, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [
-        {
-          type: "all",
-          conditions: [
-            { type: "file-name", params: {} },
-            { type: "file-name", params: {} },
-          ],
-        },
-      ],
+      conditions: {
+        type: "all",
+        conditions: [
+          { type: "file-name", params: {} },
+          { type: "file-name", params: {} },
+        ],
+      },
     });
 
     await engine.runRules(mkFile(), mkFolder([rule]), "create");
@@ -312,15 +320,13 @@ describe("RuleEngine.runRules", () => {
     registry.registerAction(mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [
-        {
-          type: "any",
-          conditions: [
-            { type: "file-name", params: {} },
-            { type: "file-path", params: {} },
-          ],
-        },
-      ],
+      conditions: {
+        type: "any",
+        conditions: [
+          { type: "file-name", params: {} },
+          { type: "file-path", params: {} },
+        ],
+      },
     });
 
     await engine.runRules(mkFile(), mkFolder([rule]), "create");
@@ -334,12 +340,10 @@ describe("RuleEngine.runRules", () => {
     const registry = mkRegistry(failingEvaluator, mkAction(execute));
     const engine = new RuleEngine(registry, mkApp());
     const rule = mkRule({
-      conditions: [
-        {
-          type: "none",
-          conditions: [{ type: "file-name", params: {} }],
-        },
-      ],
+      conditions: {
+        type: "none",
+        conditions: [{ type: "file-name", params: {} }],
+      },
     });
 
     await engine.runRules(mkFile(), mkFolder([rule]), "create");

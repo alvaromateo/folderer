@@ -9,9 +9,23 @@
     plugin: FoldererPlugin;
     folder: MonitoredFolder;
     rule: RuleData;
+    index: number;
+    totalRules: number;
   }
 
-  let { plugin, folder, rule }: Props = $props();
+  let { plugin, folder, rule, index, totalRules }: Props = $props();
+
+  async function moveUp() {
+    if (folder.moveRule(rule.id, "up")) {
+      await plugin.saveSettings();
+    }
+  }
+
+  async function moveDown() {
+    if (folder.moveRule(rule.id, "down")) {
+      await plugin.saveSettings();
+    }
+  }
 
   async function toggleEnabled() {
     folder.modifyRule({ ...$state.snapshot(rule), enabled: !rule.enabled });
@@ -31,20 +45,20 @@
 <div class="setting-item">
   <div class="rule-name">
     <div class="setting-item-control ordering-controls">
-      <div>
-        <button
-          class="clickable-icon extra-setting-button"
-          onclick={() => {}}
-          aria-label="Move rule up"
-          use:chevronUpIcon
-        ></button>
-        <button
-          class="clickable-icon extra-setting-button"
-          onclick={() => {}}
-          aria-label="Move rule down"
-          use:chevronDownIcon
-        ></button>
-      </div>
+      <button
+        class="clickable-icon extra-setting-button"
+        onclick={moveUp}
+        disabled={index === 0}
+        aria-label="Move rule up"
+        use:chevronUpIcon
+      ></button>
+      <button
+        class="clickable-icon extra-setting-button"
+        onclick={moveDown}
+        disabled={index === totalRules - 1}
+        aria-label="Move rule down"
+        use:chevronDownIcon
+      ></button>
     </div>
     <div class="setting-item-info">
       <div class="setting-item-name">{rule.name || "Unnamed"}</div>
@@ -83,7 +97,6 @@
     display: flex;
     align-items: center;
     width: 100%;
-    gap: 0;
   }
 
   .rule-name > *:first-child {

@@ -57,8 +57,8 @@
   </div>
 
   <div class="folderer_rules">
-    {#each rules as rule (rule.id)}
-      <RuleRow {plugin} {folder} {rule} />
+    {#each rules as rule, i (rule.id)}
+      <RuleRow {plugin} {folder} {rule} index={i} totalRules={rules.length} />
     {/each}
   </div>
 

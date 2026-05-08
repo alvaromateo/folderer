@@ -72,7 +72,9 @@ describe("migrateRawData — condition migration", () => {
       ],
     };
     const result = migrateRawData(raw);
-    expect(result.monitoredFolders[0]?.rules[0]?.conditions?.[0]).toEqual({
+    expect(
+      result.monitoredFolders[0]?.rules[0]?.conditions?.conditions[0],
+    ).toEqual({
       type: "file-name",
       operator: "matches",
       params: { value: "^rule-" },
@@ -101,7 +103,9 @@ describe("migrateRawData — condition migration", () => {
       ],
     };
     const result = migrateRawData(raw);
-    expect(result.monitoredFolders[0]?.rules[0]?.conditions?.[0]).toEqual({
+    expect(
+      result.monitoredFolders[0]?.rules[0]?.conditions?.conditions[0],
+    ).toEqual({
       type: "file-name",
       operator: "matches",
       params: { value: "^rule-" },
@@ -126,7 +130,7 @@ describe("migrateRawData — condition migration", () => {
       ],
     };
     const result = migrateRawData(raw);
-    expect(result.monitoredFolders[0]?.rules[0]?.conditions).toEqual([]);
+    expect(result.monitoredFolders[0]?.rules[0]?.conditions).toBeUndefined();
   });
 
   it("passes through already-new-format rule with conditions[] and actions[]", () => {
@@ -154,10 +158,15 @@ describe("migrateRawData — condition migration", () => {
       ],
     };
     const result = migrateRawData(raw);
-    expect(result.monitoredFolders[0]?.rules[0]?.conditions?.[0]).toEqual({
-      type: "file-name",
-      operator: "contains",
-      params: { value: "meeting" },
+    expect(result.monitoredFolders[0]?.rules[0]?.conditions).toEqual({
+      type: "all",
+      conditions: [
+        {
+          type: "file-name",
+          operator: "contains",
+          params: { value: "meeting" },
+        },
+      ],
     });
     expect(result.monitoredFolders[0]?.rules[0]?.actions?.[0]).toEqual({
       type: "append-text",

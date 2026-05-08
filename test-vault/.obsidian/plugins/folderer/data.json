@@ -24,20 +24,6 @@
           }
         },
         {
-          "id": "b50893dd-1b0e-4b3c-bbe9-6eff01512d72",
-          "name": "Fail",
-          "enabled": false,
-          "trigger": {
-            "type": "rename"
-          },
-          "action": {
-            "type": "prepend-text",
-            "params": {
-              "text": "Before title"
-            }
-          }
-        },
-        {
           "id": "d2baa323-34c9-471c-8369-d46b192c89d6",
           "name": "best rule",
           "enabled": true,
@@ -65,12 +51,42 @@
               }
             }
           ]
+        },
+        {
+          "id": "cc715784-c1b9-459e-9e55-7cf55813ddb1",
+          "name": "noice",
+          "enabled": true,
+          "trigger": {
+            "type": "create"
+          },
+          "conditions": {
+            "type": "all",
+            "conditions": [
+              {
+                "type": "property",
+                "operator": "starts",
+                "params": {
+                  "property": "modified",
+                  "value": "2026"
+                }
+              },
+              {
+                "type": "file-path",
+                "operator": "exists",
+                "params": {}
+              }
+            ]
+          },
+          "actions": [
+            {
+              "type": "append-text",
+              "params": {
+                "text": "yeeaaaah"
+              }
+            }
+          ]
         }
       ]
-    },
-    {
-      "path": "Folder",
-      "rules": []
     },
     {
       "path": "WoW",

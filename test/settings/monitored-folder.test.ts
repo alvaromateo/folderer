@@ -231,6 +231,83 @@ describe("MonitoredFolder.modifyRule", () => {
   });
 });
 
+describe("MonitoredFolder.moveRule", () => {
+  it("moves a rule up by swapping it with its predecessor", () => {
+    const r1 = mkRule("r1");
+    const r2 = mkRule("r2");
+    const folder = new MonitoredFolder("Literature", [r1, r2]);
+    folder.moveRule("r2", "up");
+    expect(folder.rules[0]).toBe(r2);
+    expect(folder.rules[1]).toBe(r1);
+  });
+
+  it("moves a rule down by swapping it with its successor", () => {
+    const r1 = mkRule("r1");
+    const r2 = mkRule("r2");
+    const folder = new MonitoredFolder("Literature", [r1, r2]);
+    folder.moveRule("r1", "down");
+    expect(folder.rules[0]).toBe(r2);
+    expect(folder.rules[1]).toBe(r1);
+  });
+
+  it("is a no-op when moving the first rule up", () => {
+    const r1 = mkRule("r1");
+    const r2 = mkRule("r2");
+    const folder = new MonitoredFolder("Literature", [r1, r2]);
+    const cb = vi.fn();
+    folder.addRenderCallback(cb);
+    folder.moveRule("r1", "up");
+    expect(folder.rules[0]).toBe(r1);
+    expect(folder.rules[1]).toBe(r2);
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it("is a no-op when moving the last rule down", () => {
+    const r1 = mkRule("r1");
+    const r2 = mkRule("r2");
+    const folder = new MonitoredFolder("Literature", [r1, r2]);
+    const cb = vi.fn();
+    folder.addRenderCallback(cb);
+    folder.moveRule("r2", "down");
+    expect(folder.rules[0]).toBe(r1);
+    expect(folder.rules[1]).toBe(r2);
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it("is a no-op and does not call callbacks when the id is not found", () => {
+    const r1 = mkRule("r1");
+    const folder = new MonitoredFolder("Literature", [r1]);
+    const cb = vi.fn();
+    folder.addRenderCallback(cb);
+    folder.moveRule("does-not-exist", "up");
+    expect(folder.rules).toHaveLength(1);
+    expect(folder.rules[0]).toBe(r1);
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it("fires render callbacks after a valid move", () => {
+    const r1 = mkRule("r1");
+    const r2 = mkRule("r2");
+    const folder = new MonitoredFolder("Literature", [r1, r2]);
+    const cb = vi.fn();
+    folder.addRenderCallback(cb);
+    folder.moveRule("r2", "up");
+    expect(cb).toHaveBeenCalledOnce();
+    expect(cb).toHaveBeenCalledWith([r2, r1]);
+  });
+
+  it("does not fire callbacks when a boundary no-op occurs", () => {
+    const r1 = mkRule("r1");
+    const folder = new MonitoredFolder("Literature", [r1]);
+    const cb = vi.fn();
+    folder.addRenderCallback(cb);
+    folder.moveRule("r1", "up");
+    expect(cb).not.toHaveBeenCalled();
+    folder.moveRule("r1", "down");
+    expect(cb).not.toHaveBeenCalled();
+  });
+});
+
 describe("MonitoredFolder render callbacks", () => {
   it("addRenderCallback registers the same callback only once (Set semantics)", () => {
     const folder = new MonitoredFolder("Literature");
