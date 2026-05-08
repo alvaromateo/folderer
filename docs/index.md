@@ -11,7 +11,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/alvaromateo9/folderer
+      link: https://github.com/alvaromateo/folderer
 
 features:
   - title: Monitored Folders

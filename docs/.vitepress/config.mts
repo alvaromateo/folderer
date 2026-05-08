@@ -11,7 +11,7 @@ export default defineConfig({
       { text: "Guide", link: "/guide/getting-started" },
       {
         text: "GitHub",
-        link: "https://github.com/alvaromateo9/folderer",
+        link: "https://github.com/alvaromateo/folderer",
       },
     ],
 
@@ -31,7 +31,7 @@ export default defineConfig({
     socialLinks: [
       {
         icon: "github",
-        link: "https://github.com/alvaromateo9/folderer",
+        link: "https://github.com/alvaromateo/folderer",
       },
     ],
 
@@ -46,7 +46,7 @@ export default defineConfig({
 
     editLink: {
       pattern:
-        "https://github.com/alvaromateo9/folderer/edit/main/docs/:path",
+        "https://github.com/alvaromateo/folderer/edit/main/docs/:path",
       text: "Edit this page on GitHub",
     },
   },

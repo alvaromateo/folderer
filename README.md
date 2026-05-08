@@ -2,7 +2,7 @@
 
 An [Obsidian](https://obsidian.md/) plugin that automatically runs rules on markdown files in monitored folders.
 
-**[Documentation →](https://alvaromateo9.github.io/folderer/)**
+**[Documentation →](https://alvaromateo.github.io/folderer/)**
 
 ## Features
 
@@ -30,14 +30,14 @@ An [Obsidian](https://obsidian.md/) plugin that automatically runs rules on mark
    - **Action**: Append text → `#literature`
 4. Create a `.md` file inside `Literature/` — `#literature` is appended automatically
 
-See the [full documentation](https://alvaromateo9.github.io/folderer/) for all available conditions and actions.
+See the [full documentation](https://alvaromateo.github.io/folderer/) for all available conditions and actions.
 
 ## Development
 
 Requires [mise](https://mise.jdx.dev/) for Node.js management.
 
 ```bash
-git clone https://github.com/alvaromateo9/folderer.git
+git clone https://github.com/alvaromateo/folderer.git
 cd folderer
 npm install
 npm run dev       # watch mode — rebuilds on save

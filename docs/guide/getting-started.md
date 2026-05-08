@@ -17,7 +17,7 @@ A typical use case: every note that lands in your `Literature` folder should hav
 
 ### Manual Installation
 
-1. Download the [latest release](https://github.com/alvaromateo9/folderer/releases/latest) assets: `main.js` and `manifest.json`
+1. Download the [latest release](https://github.com/alvaromateo/folderer/releases/latest) assets: `main.js` and `manifest.json`
 2. Create the folder `<vault>/.obsidian/plugins/folderer/`
 3. Copy both files into that folder
 4. Reload Obsidian and enable Folderer under **Settings → Community Plugins**
