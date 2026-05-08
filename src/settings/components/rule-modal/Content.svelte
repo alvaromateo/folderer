@@ -5,13 +5,13 @@
   import type FoldererPlugin from "../../../main";
   import type { MonitoredFolder } from "../../folder-settings";
   import type {
-    ActionData,
     ConditionData,
     RootConditionData,
     RuleData,
     Trigger,
     TriggerType,
   } from "../../../types";
+  import Actions from "./Actions.svelte";
   import Conditions from "./Conditions.svelte";
 
   interface Props {
@@ -25,17 +25,13 @@
 
   const isNew = untrack(() => selectedRule === null);
 
-  function deepCopyCondition(
-    condition: ConditionData
-  ): ConditionData {
-    return {
-      ...condition,
-    };
+  function shallowCopyCondition(condition: ConditionData): ConditionData {
+    return { ...condition, params: { ...condition.params } };
   }
 
   function deepCopyRule(r: RuleData): RuleData {
     const copiedConditions = r.conditions?.conditions?.map(
-      (cond) => deepCopyCondition(cond)
+      (cond) => shallowCopyCondition(cond)
     ) ?? [];
     return {
       ...r,
@@ -68,14 +64,6 @@
     ),
   );
 
-  let firstAction = $derived<ActionData>(
-    rule.actions?.[0] ?? { type: "append-text", params: {} },
-  );
-
-  let actionFields = $derived(
-    plugin.engine.registry.getAction(firstAction.type)?.fields ?? [],
-  );
-
   function onTriggerChange(e: Event) {
     rule.trigger.type = (e.target as HTMLSelectElement).value as TriggerType;
   }
@@ -87,23 +75,27 @@
     }
   }
 
-  function onActionTypeChange(e: Event) {
-    const v = (e.target as HTMLSelectElement).value;
-    if (!rule.actions) rule.actions = [];
-    rule.actions[0] = { type: v, params: {} };
-  }
-
   async function save() {
     if (!rule.name.trim()) {
       new Notice("Rule name cannot be empty.");
       return;
     }
 
-    const actionHandler = plugin.engine.registry.getAction(firstAction.type);
-    for (const field of actionHandler?.fields ?? []) {
-      if (!(firstAction.params[field.key] ?? "").trim()) {
-        new Notice(`${field.label} cannot be empty.`);
+    if (!rule.actions || rule.actions.length === 0) {
+      new Notice("At least one action is required.");
+      return;
+    }
+    for (const action of rule.actions) {
+      const actionHandler = plugin.engine.registry.getAction(action.type);
+      if (!actionHandler) {
+        new Notice(`Unknown action type "${action.type}". Please remove or replace it.`);
         return;
+      }
+      for (const field of actionHandler.fields) {
+        if (!(action.params[field.key] ?? "").trim()) {
+          new Notice(`${field.label} cannot be empty.`);
+          return;
+        }
       }
     }
 
@@ -225,52 +217,18 @@
   </div>
 
   <!-- Actions -->
-  <div class="setting-item">
-    <div class="setting-item-info">
-      <div class="setting-item-name">Action</div>
+  <div class="setting-item multiple-entries">
+    <div class="rule-row heading">
+      <div class="setting-item-info">
+        <div class="setting-item-name">Actions</div>
+      </div>
     </div>
-    <div class="setting-item-control">
-      <select
-        class="dropdown"
-        value={firstAction.type}
-        onchange={onActionTypeChange}
-        aria-label="Action type"
-      >
-        {#each plugin.engine.registry.allActions() as handler}
-          <option value={handler.type}>{handler.label}</option>
-        {/each}
-      </select>
-    </div>
+
+    <Actions plugin={plugin} actions={rule.actions ?? []} />
   </div>
 
-  {#each actionFields as field (field.key)}
-    <div class="setting-item">
-      <div class="setting-item-info">
-        <div class="setting-item-name">{field.label}</div>
-        {#if field.description}
-          <div class="setting-item-description">{field.description}</div>
-        {/if}
-      </div>
-      <div class="setting-item-control">
-        <input
-          type="text"
-          placeholder={field.placeholder ?? ""}
-          value={firstAction.params[field.key] ?? ""}
-          oninput={(e) => {
-            if (rule.actions?.[0]) {
-              rule.actions[0].params[field.key] = (
-                e.target as HTMLInputElement
-              ).value;
-            }
-          }}
-          aria-label={field.label}
-        />
-      </div>
-    </div>
-  {/each}
-
   <div class="setting-item">
-    <div class="setting-item-info"></div>
+    <div class="setting-item-info" aria-hidden="true"></div>
     <div class="setting-item-control">
       <button class="mod-cta" onclick={save}>{isNew ? "Add" : "Save"}</button>
       <button onclick={onClose}>Cancel</button>
@@ -280,7 +238,7 @@
 
 <style>
   .rule-modal {
-    margin-top: 1rem;
+    margin-top: var(--size-4-4);
   }
 
   .rule-name-input {

@@ -83,6 +83,12 @@
               "params": {
                 "text": "yeeaaaah"
               }
+            },
+            {
+              "type": "prepend-text",
+              "params": {
+                "text": "hell"
+              }
             }
           ]
         }

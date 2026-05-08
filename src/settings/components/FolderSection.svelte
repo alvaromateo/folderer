@@ -74,6 +74,6 @@
 
 <style>
   .folder-section {
-    margin-top: 2rem;
+    margin-top: var(--size-4-8);
   }
 </style>

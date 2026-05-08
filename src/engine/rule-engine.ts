@@ -26,7 +26,7 @@ export class RuleEngine {
         const testConditions = this.evaluateCondition(rule.conditions, file);
         if (!testConditions) continue;
       }
-      for (const action of rule.actions ?? []) {
+      for (const action of rule.actions) {
         await this.executeAction(file, action, rule.name);
       }
     }

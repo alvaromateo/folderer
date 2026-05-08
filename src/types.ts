@@ -27,7 +27,7 @@ export interface RuleData {
   enabled: boolean;
   trigger: Trigger;
   conditions?: RootConditionData;
-  actions?: ActionData[];
+  actions: ActionData[];
 }
 
 export interface FoldererSettingsData {

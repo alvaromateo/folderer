@@ -130,10 +130,10 @@
   .conditions-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 0.5rem;
+    margin: 0 0 var(--size-4-2);
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--size-4-4);
     width: 100%;
   }
 
@@ -141,12 +141,13 @@
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: var(--size-4-2);
   }
 
   .condition-bullet {
     flex-shrink: 0;
     display: flex;
+    /* same as .clickable-icon set for the closing X */
     padding-top: var(--size-2-2);
     padding-bottom: var(--size-2-2);
   }
@@ -156,18 +157,17 @@
     flex-direction: row;
     flex-wrap: wrap;
     flex: 1;
-    gap: 0.5rem;
+    gap: var(--size-4-2);
   }
 
   .condition-inputs input[type="text"] {
     flex: 1;
-    min-width: 8rem;
   }
 
   .add-condition-btn {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
-    cursor: pointer;
+    gap: var(--size-4-1);
+    cursor: var(--cursor-link);
   }
 </style>
