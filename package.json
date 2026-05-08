@@ -14,7 +14,10 @@
     "check": "biome check . && biome lint . && npm run svelte-check",
     "fix": "biome check --write .",
     "svelte-check": "svelte-check --tsconfig tsconfig.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "obsidian": "latest"
@@ -31,6 +34,7 @@
     "svelte-check": "^4.4.7",
     "svelte-preprocess": "^6.0.3",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "vitepress": "^1.6.0"
   }
 }
