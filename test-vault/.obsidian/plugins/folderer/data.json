@@ -1,115 +1,63 @@
 {
   "monitoredFolders": [
     {
-      "path": "Test",
+      "path": "Literature",
       "rules": [
         {
-          "id": "c423f85d-91be-4e84-99e2-ce9b1455f918",
-          "name": "Cookie",
+          "id": "d5d099b6-c9be-4520-9cbe-e9fe2f31873c",
+          "name": "DateMove",
           "enabled": true,
           "trigger": {
-            "type": "create"
-          },
-          "condition": {
-            "type": "filename-matches",
-            "params": {
-              "pattern": "\\d{4}-\\d{2}"
-            }
-          },
-          "action": {
-            "type": "append-text",
-            "params": {
-              "text": "a chicken"
-            }
-          }
-        },
-        {
-          "id": "d2baa323-34c9-471c-8369-d46b192c89d6",
-          "name": "best rule",
-          "enabled": true,
-          "trigger": {
-            "type": "create"
-          },
-          "conditions": {
-            "type": "any",
-            "conditions": [
-              {
-                "type": "property",
-                "operator": "starts",
-                "params": {
-                  "property": "modified",
-                  "value": "2026"
-                }
-              }
-            ]
+            "type": "move"
           },
           "actions": [
             {
-              "type": "append-text",
+              "type": "move-to-date-subfolder",
               "params": {
-                "text": "what is this"
+                "pattern": "MM-YYYY"
               }
             }
-          ]
+          ],
+          "conditions": {
+            "type": "none",
+            "conditions": [
+              {
+                "type": "property",
+                "operator": "exists",
+                "params": {
+                  "property": "folderer"
+                }
+              }
+            ]
+          }
         },
         {
-          "id": "cc715784-c1b9-459e-9e55-7cf55813ddb1",
-          "name": "noice",
+          "id": "6cf9f6c4-9b77-456a-b20b-8b77ad00244f",
+          "name": "PropMove",
           "enabled": true,
           "trigger": {
-            "type": "create"
+            "type": "move"
           },
           "conditions": {
             "type": "all",
             "conditions": [
               {
                 "type": "property",
-                "operator": "starts",
-                "params": {
-                  "property": "modified",
-                  "value": "2026"
-                }
-              },
-              {
-                "type": "file-path",
                 "operator": "exists",
-                "params": {}
+                "params": {
+                  "property": "folderer"
+                }
               }
             ]
           },
           "actions": [
             {
-              "type": "append-text",
+              "type": "move-to-property-subfolder",
               "params": {
-                "text": "yeeaaaah"
-              }
-            },
-            {
-              "type": "prepend-text",
-              "params": {
-                "text": "hell"
+                "property": "folderer"
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "path": "WoW",
-      "rules": [
-        {
-          "id": "52bdef11-e86e-43f5-ad70-bebc16ba045e",
-          "name": "Awesome",
-          "enabled": false,
-          "trigger": {
-            "type": "create"
-          },
-          "action": {
-            "type": "append-text",
-            "params": {
-              "text": "Take this!"
-            }
-          }
         }
       ]
     }

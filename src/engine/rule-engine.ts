@@ -2,6 +2,10 @@ import { type App, Notice, type TFile } from "obsidian";
 import type { MonitoredFolder } from "../settings/folder-settings";
 import type { ActionData, ConditionData, TriggerType } from "../types";
 import { appendTextExecutor } from "./actions/append-text";
+import {
+  moveToDateSubfolderExecutor,
+  moveToPropertySubfolderExecutor,
+} from "./actions/move-to-subfolder";
 import { prependTextExecutor } from "./actions/prepend-text";
 import { fileNameEvaluator } from "./conditions/file-name";
 import { filePathEvaluator } from "./conditions/file-path";
@@ -82,7 +86,9 @@ export class RuleEngine {
         `Folderer: action failed for rule "${ruleName}" on ${file.path}`,
         err,
       );
-      new Notice(`Condition evaluation error. Check DevTools for details.`);
+      new Notice(
+        `Action execution error in rule "${ruleName}". Check DevTools for details.`,
+      );
     }
   }
 }
@@ -98,6 +104,8 @@ export const createRuleEngine = (app: App): RuleEngine => {
   registry.registerCondition(propertyEvaluator);
   registry.registerAction(appendTextExecutor);
   registry.registerAction(prependTextExecutor);
+  registry.registerAction(moveToDateSubfolderExecutor);
+  registry.registerAction(moveToPropertySubfolderExecutor);
   _ruleEngine = new RuleEngine(registry, app);
   return _ruleEngine;
 };

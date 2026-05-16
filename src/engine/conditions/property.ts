@@ -1,7 +1,7 @@
 import type { App, TFile } from "obsidian";
 import { CONDITION_PROPERTY } from "../../constants";
 import type { ConditionData } from "../../types";
-import { getFrontMatterString } from "../utils";
+import { getFrontMatterString } from "../../utils";
 import type { ConditionEvaluator } from "./evaluator";
 import { StringValueOperator, StringValueOperators } from "./operators";
 

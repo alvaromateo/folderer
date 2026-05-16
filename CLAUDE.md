@@ -28,7 +28,7 @@ mise exec node -- npm run format      # format only
 
 ```
 src/main.ts                    Plugin entry point (onload, event handlers)
-src/handlers.ts                Pure logic: getParentFolder, isCrossfolderMove, isInMonitoredFolder
+src/utils.ts                Pure logic: getParentFolder, isCrossfolderMove, isInMonitoredFolder
 src/settings/settings.ts       FoldererSettings interface + DEFAULT_SETTINGS
 src/settings/settings-tab.ts   PluginSettingTab UI (add/remove monitored folders)
 test/                          Vitest unit tests (handlers only — no Obsidian mocking needed)
@@ -45,8 +45,6 @@ The plugin registers two vault event handlers in `onload()`:
 - **`vault.on('rename')`** — fires for both renames and moves; filtered to cross-folder moves only via `isCrossfolderMove()`
 
 Obsidian has no dedicated `move` event. The distinction between an in-folder rename and a cross-folder move is detected by comparing the parent directory of the new path against the parent of the old path.
-
-All business logic lives in `src/handlers.ts` as pure functions with no Obsidian imports, so tests require zero mocking.
 
 File content is modified with `vault.process()` (atomic read-modify-write, prevents race conditions).
 

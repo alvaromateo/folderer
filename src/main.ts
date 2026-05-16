@@ -1,11 +1,11 @@
 import { Plugin, TFile } from "obsidian";
 import { createRuleEngine, type RuleEngine } from "./engine/rule-engine";
-import { getMatchingFolder, isCrossfolderMove } from "./handlers";
 // import { migrateRawData } from "./migration";
 // import { MonitoredFolder } from "./settings/folder-settings";
 import { FoldererSettings } from "./settings/settings";
 import { FoldererSettingTab } from "./settings/settings-tab";
 import type { FoldererSettingsData, TriggerType } from "./types";
+import { getMatchingFolder, isCrossfolderMove } from "./utils";
 
 export default class FoldererPlugin extends Plugin {
   settings!: FoldererSettings;
@@ -44,7 +44,7 @@ export default class FoldererPlugin extends Plugin {
             abstractFile.path,
             oldPath,
           )
-            ? "create"
+            ? "move"
             : "rename";
           await this.engine.runRules(abstractFile, folder, triggerType);
         }),
