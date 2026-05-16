@@ -161,7 +161,8 @@
         aria-label="Trigger event"
       >
         <option value="create">File created</option>
-        <option value="rename">File renamed / moved</option>
+        <option value="rename">File renamed</option>
+        <option value="move">File moved</option>
         <option value="delete">File deleted</option>
       </select>
     </div>

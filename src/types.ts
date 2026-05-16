@@ -1,4 +1,4 @@
-export type TriggerType = "create" | "rename" | "delete";
+export type TriggerType = "create" | "move" | "rename" | "delete";
 
 export interface Trigger {
   type: TriggerType;
