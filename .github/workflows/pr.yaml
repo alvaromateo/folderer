@@ -7,7 +7,29 @@ on:
   pull_request:
 
 jobs:
-  cache-and-install:
+  lint:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run linting
+        run: npm run check
+
+  test:
     runs-on: ubuntu-latest
 
     permissions:
@@ -30,5 +52,5 @@ jobs:
         run: npm run coverage
 
       - name: Report Coverage
-        if: ${{ github.event.pull_request }}
+        if: github.event_name == 'pull_request'
         uses: davelosert/vitest-coverage-report-action@v2
