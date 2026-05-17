@@ -1,6 +1,6 @@
 # Folderer — Obsidian Plugin
 
-An Obsidian plugin that watches user-configured folders and appends text to markdown files when they are created in or moved into those folders.
+An Obsidian plugin that watches user-configured folders and runs configurable rules (conditions + actions) on markdown files when they are created or moved into those folders.
 
 ## Verification
 
@@ -24,29 +24,26 @@ mise exec node -- npm run format      # format only
 
 > Node is managed by `mise` (`mise.toml`). All `npm` commands must be prefixed with `mise exec node --` since `npm`/`node` are not on the global PATH.
 
-## Project Structure
-
-```
-src/main.ts                    Plugin entry point (onload, event handlers)
-src/utils.ts                Pure logic: getParentFolder, isCrossfolderMove, isInMonitoredFolder
-src/settings/settings.ts       FoldererSettings interface + DEFAULT_SETTINGS
-src/settings/settings-tab.ts   PluginSettingTab UI (add/remove monitored folders)
-test/                          Vitest unit tests (handlers only — no Obsidian mocking needed)
-test-vault/                    Local Obsidian vault used for manual testing
-dist/                          Build output (gitignored)
-esbuild.config.mjs             Build config: entry src/main.ts → dist/main.js (CommonJS, ES2018 target)
-```
-
 ## Architecture
 
 The plugin registers two vault event handlers in `onload()`:
 
-- **`vault.on('create')`** — fires when a new file is written to disk
-- **`vault.on('rename')`** — fires for both renames and moves; filtered to cross-folder moves only via `isCrossfolderMove()`
+- **`vault.on('create')`** — fires when a new file is written to disk; triggers rules with `TriggerType = "create"`
+- **`vault.on('rename')`** — fires for both renames and moves; cross-folder moves get `TriggerType = "move"`, same-folder renames get `TriggerType = "rename"`
 
-Obsidian has no dedicated `move` event. The distinction between an in-folder rename and a cross-folder move is detected by comparing the parent directory of the new path against the parent of the old path.
+Obsidian has no dedicated `move` event. The distinction between an in-folder rename and a cross-folder move is detected by comparing the parent directory of the new path against the parent of the old path (`isCrossfolderMove` in `utils.ts`).
 
-File content is modified with `vault.process()` (atomic read-modify-write, prevents race conditions).
+### Rule Engine
+
+Each `MonitoredFolder` holds an ordered list of `RuleData` objects. When a trigger fires, `RuleEngine.runRules()` iterates rules, evaluates conditions, then dispatches actions. Both conditions and actions are registered in `HandlerRegistry` by type string — adding a new action/condition means implementing the interface and calling `registry.registerAction/Condition` in `createRuleEngine()`.
+
+`FieldDescriptor` objects on each handler drive the settings UI: the Svelte `Actions.svelte` / `Conditions.svelte` components render fields generically based on `fieldType`.
+
+### Adding a new action
+
+1. Create `src/engine/actions/<name>.ts` exporting an `ActionExecutor`
+2. Register it in `createRuleEngine()` in `src/engine/rule-engine.ts`
+3. Add a constant to `src/constants.ts` only if the type string is referenced outside the executor file
 
 ## TypeScript Config
 
