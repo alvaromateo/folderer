@@ -1,4 +1,8 @@
-FROM --platform=linux/amd64 ubuntu:24.04
+# 1. Define the platform argument BEFORE the FROM line so it's globally available
+ARG BUILD_PLATFORM=linux/amd64
+
+# 2. Reference the variable instead of a hardcoded string
+FROM --platform=${BUILD_PLATFORM} ubuntu:24.04
 
 ARG OBSIDIAN_VERSION=1.12.7
 
