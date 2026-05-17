@@ -2,13 +2,18 @@
 
 An Obsidian plugin that watches user-configured folders and runs configurable rules (conditions + actions) on markdown files when they are created or moved into those folders.
 
+## DO
+
+- Keep CLAUDE.md in sync: if a session adds source files, renames modules, or introduces architectural patterns, update the relevant sections before finishing.
+
 ## Verification
 
 - After you finish applying any code changes, use the test-writer-vitest agent to write/update unit tests.
-The agent should verify that the tests it writes pass.
+- The agent should verify that the tests it writes pass.
 - When the tests are done and passing, use the code-review-expert agent and ask it to review the changes done.
 - Check with me before applying the fixes/changes suggested by the code-review-expert agent.
 - At the end, run `mise exec node -- npm run fix` and fix any warnings or errors that can't be fixed automatically.
+- Run `mise exec node -- npm run test:integration:docker` and check that all the tests pass.
 
 ## Commands
 
@@ -66,6 +71,22 @@ ln -sf "$(pwd)/manifest.json" test-vault/.obsidian/plugins/folderer/manifest.jso
 ```
 
 The plugin is pre-registered in `test-vault/.obsidian/community-plugins.json`. Open Obsidian pointing at `./test-vault/` and enable the Folderer plugin in Community Plugins settings.
+
+### Integration Tests
+
+Run locally with:
+```bash
+mise exec node -- npm run test:integration
+```
+
+Run inside Docker with:
+```bash
+mise exec node -- npm run test:integration:docker
+```
+
+The Docker image uses `COPY` (not a bind mount), so container runs are fully isolated — they cannot overwrite files in your working directory, including the symlinks in `test-vault/.obsidian/plugins/folderer/`.
+
+If those symlinks ever point to `/workspace/...` (a container-only path) instead of your local `dist/main.js`, the plugin will fail to load locally. Fix by re-running the one-time setup commands above.
 
 ### Manual Testing
 

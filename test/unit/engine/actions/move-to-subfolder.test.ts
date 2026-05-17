@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   moveToDateSubfolderExecutor,
   moveToPropertySubfolderExecutor,
-} from "../../../src/engine/actions/move-to-subfolder";
-import type { ActionData } from "../../../src/types";
+} from "../../../../src/engine/actions/move-to-subfolder";
+import type { ActionData } from "../../../../src/types";
 
 // Fixed date used across all date-executor tests: 2024-03-05
 const FIXED_DATE = new Date(2024, 2, 5); // month is 0-indexed

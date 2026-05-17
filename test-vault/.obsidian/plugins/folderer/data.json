@@ -60,6 +60,59 @@
           ]
         }
       ]
+    },
+    {
+      "path": "IntegrationTest",
+      "rules": [
+        {
+          "id": "it-append",
+          "name": "Append Rule",
+          "enabled": true,
+          "trigger": { "type": "create" },
+          "actions": [{ "type": "append-text", "params": { "text": "<!-- appended -->" } }]
+        },
+        {
+          "id": "it-prepend",
+          "name": "Prepend Rule",
+          "enabled": true,
+          "trigger": { "type": "create" },
+          "actions": [{ "type": "prepend-text", "params": { "text": "<!-- prepended -->" } }]
+        },
+        {
+          "id": "it-conditional",
+          "name": "Conditional Rule",
+          "enabled": true,
+          "trigger": { "type": "create" },
+          "conditions": {
+            "type": "all",
+            "conditions": [
+              { "type": "file-name", "operator": "contains", "params": { "value": "tagged" } }
+            ]
+          },
+          "actions": [{ "type": "append-text", "params": { "text": "<!-- tagged -->" } }]
+        },
+        {
+          "id": "it-rename",
+          "name": "Rename Rule",
+          "enabled": true,
+          "trigger": { "type": "rename" },
+          "actions": [{ "type": "append-text", "params": { "text": "<!-- renamed -->" } }]
+        },
+        {
+          "id": "it-move",
+          "name": "Move Rule",
+          "enabled": true,
+          "trigger": { "type": "move" },
+          "actions": [{ "type": "append-text", "params": { "text": "<!-- moved -->" } }]
+        },
+        {
+          "id": "it-disabled",
+          "name": "Disabled Rule",
+          "enabled": false,
+          "trigger": { "type": "create" },
+          "actions": [{ "type": "append-text", "params": { "text": "<!-- disabled -->" } }]
+        }
+      ]
     }
   ]
 }

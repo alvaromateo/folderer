@@ -1,7 +1,7 @@
 import type { EmbedCache, TFile } from "obsidian";
 import { describe, expect, it, vi } from "vitest";
-import { moveAttachmentsExecutor } from "../../../src/engine/actions/move-attachments";
-import type { ActionData } from "../../../src/types";
+import { moveAttachmentsExecutor } from "../../../../src/engine/actions/move-attachments";
+import type { ActionData } from "../../../../src/types";
 
 vi.mock("obsidian", async (importOriginal) => {
   const original = await importOriginal<typeof import("obsidian")>();

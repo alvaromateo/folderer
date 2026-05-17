@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ActionExecutor } from "../../src/engine/actions/executor";
-import type { ConditionEvaluator } from "../../src/engine/conditions/evaluator";
-import { HandlerRegistry } from "../../src/engine/registry";
-import { RuleEngine } from "../../src/engine/rule-engine";
-import type { RootConditionData, RuleData } from "../../src/types";
+import type { ActionExecutor } from "../../../src/engine/actions/executor";
+import type { ConditionEvaluator } from "../../../src/engine/conditions/evaluator";
+import { HandlerRegistry } from "../../../src/engine/registry";
+import { RuleEngine } from "../../../src/engine/rule-engine";
+import type { RootConditionData, RuleData } from "../../../src/types";
 
 // Polyfill Obsidian Array extensions
 // biome-ignore lint/suspicious/noExplicitAny: polyfill
@@ -39,7 +39,7 @@ function mkRule(overrides: Partial<RuleData> = {}): RuleData {
 function mkFolder(rules: RuleData[]) {
   return {
     rules,
-  } as unknown as import("../../src/settings/folder-settings").MonitoredFolder;
+  } as unknown as import("../../../src/settings/folder-settings").MonitoredFolder;
 }
 
 function mkRegistry(

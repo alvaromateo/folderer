@@ -1,7 +1,7 @@
 import type { TFile } from "obsidian";
 import { describe, expect, it, vi } from "vitest";
-import { prependTextExecutor } from "../../../src/engine/actions/prepend-text";
-import type { ActionData } from "../../../src/types";
+import { prependTextExecutor } from "../../../../src/engine/actions/prepend-text";
+import type { ActionData } from "../../../../src/types";
 
 function mkAction(text: string): ActionData {
   return { type: "prepend-text", params: { text } };

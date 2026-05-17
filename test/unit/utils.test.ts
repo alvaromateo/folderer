@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { MonitoredFolder } from "../src/settings/folder-settings";
+import { MonitoredFolder } from "../../src/settings/folder-settings";
 import {
   getMatchingFolder,
   getParentFolder,
   isCrossfolderMove,
   isInMonitoredFolder,
-} from "../src/utils";
+} from "../../src/utils";
 
 function mkFolders(...paths: string[]): MonitoredFolder[] {
   return paths.map((path) => new MonitoredFolder(path));

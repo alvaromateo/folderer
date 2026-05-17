@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { ActionExecutor } from "../../src/engine/actions/executor";
-import type { ConditionEvaluator } from "../../src/engine/conditions/evaluator";
-import { HandlerRegistry } from "../../src/engine/registry";
+import type { ActionExecutor } from "../../../src/engine/actions/executor";
+import type { ConditionEvaluator } from "../../../src/engine/conditions/evaluator";
+import { HandlerRegistry } from "../../../src/engine/registry";
 
 function mkCondition(type: string): ConditionEvaluator {
   return {

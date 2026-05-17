@@ -150,3 +150,6 @@ vite.config.ts.timestamp-*
 # Obsidian workspace
 test-vault/.obsidian/workspace.json
 
+# Integration test artifacts
+obsidian_*.deb
+*.AppImage

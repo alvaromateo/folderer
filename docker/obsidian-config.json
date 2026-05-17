@@ -1,0 +1,10 @@
+{
+  "vaults": {
+    "folderer-test-vault": {
+      "path": "/tmp/test-vault",
+      "ts": 0,
+      "open": true
+    }
+  },
+  "cli": true
+}
