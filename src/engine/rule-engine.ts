@@ -2,6 +2,7 @@ import { type App, Notice, type TFile } from "obsidian";
 import type { MonitoredFolder } from "../settings/folder-settings";
 import type { ActionData, ConditionData, TriggerType } from "../types";
 import { appendTextExecutor } from "./actions/append-text";
+import { moveAttachmentsExecutor } from "./actions/move-attachments";
 import {
   moveToDateSubfolderExecutor,
   moveToPropertySubfolderExecutor,
@@ -106,6 +107,7 @@ export const createRuleEngine = (app: App): RuleEngine => {
   registry.registerAction(prependTextExecutor);
   registry.registerAction(moveToDateSubfolderExecutor);
   registry.registerAction(moveToPropertySubfolderExecutor);
+  registry.registerAction(moveAttachmentsExecutor);
   _ruleEngine = new RuleEngine(registry, app);
   return _ruleEngine;
 };
