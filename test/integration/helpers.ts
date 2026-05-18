@@ -8,15 +8,15 @@ export function skipIfRenameEventsUnsupported(
 ): () => boolean {
   let unsupported = false;
   beforeAll(async () => {
-    const probe = "IntegrationTest/_rename-probe.md";
-    const probeAfter = "IntegrationTest/_rename-probe-after.md";
+    const probe = "IntegrationTest/rename-probe.md";
+    const probeAfter = "IntegrationTest/rename-probe-after.md";
     try {
       await client.createFile(probe, "probe");
       await waitFor(async () => {
         const c = await client.readFile(probe);
         return c.includes("<!-- appended -->");
       }, 5000);
-      await client.renameFile(probe, "_rename-probe-after.md");
+      await client.renameFile(probe, "rename-probe-after.md");
       await waitFor(async () => {
         try {
           const c = await client.readFile(probeAfter);
@@ -48,6 +48,7 @@ export async function waitFor(
     if (await condition()) return;
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
+  console.warn(`waitFor timed out after ${timeout}ms`);
   throw new Error(`waitFor timed out after ${timeout}ms`);
 }
 
@@ -66,4 +67,12 @@ export async function cleanupFiles(
   paths: string[],
 ): Promise<void> {
   await Promise.all(paths.map((p) => client.deleteFile(p)));
+}
+
+export function delay(milliseconds: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, milliseconds);
+  });
 }

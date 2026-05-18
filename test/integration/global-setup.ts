@@ -20,7 +20,7 @@ export async function setup(): Promise<void> {
   await execFileAsync(CLI_PATH, [
     `vault=${VAULT_NAME}`,
     "eval",
-    "code=(async()=>{await app.plugins.loadManifests();await app.plugins.enablePlugin('folderer')})()",
+    "code=(async()=>{localStorage.setItem('enable-plugin-'+app.appId,'true');await app.plugins.loadManifests();await app.plugins.enablePlugin('folderer')})()",
   ]);
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
