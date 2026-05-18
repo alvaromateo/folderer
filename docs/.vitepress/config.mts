@@ -6,9 +6,18 @@ export default defineConfig({
     "An Obsidian plugin that runs automated rules on files when they enter monitored folders.",
   base: "/folderer/",
 
+  head: [
+    [
+      "link",
+      { rel: "icon", type: "image/png", href: "/folderer/favicon.png" },
+    ],
+  ],
+
   themeConfig: {
+    logo: "/favicon.png",
+
     nav: [
-      { text: "Guide", link: "/guide/getting-started" },
+      { text: "Docs", link: "/intro/getting-started" },
       {
         text: "GitHub",
         link: "https://github.com/alvaromateo/folderer",
@@ -17,14 +26,34 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: "Guide",
+        text: "Introduction",
         items: [
-          { text: "Getting Started", link: "/guide/getting-started" },
-          { text: "Monitored Folders", link: "/guide/monitored-folders" },
-          { text: "Rules", link: "/guide/rules" },
-          { text: "Conditions", link: "/guide/conditions" },
-          { text: "Actions", link: "/guide/actions" },
+          { text: "Getting Started", link: "/intro/getting-started" },
+          { text: "Monitored Folders", link: "/intro/monitored-folders" },
+          { text: "Rules", link: "/intro/rules" },
+          { text: "Actions", link: "/intro/actions" },
+          { text: "Conditions", link: "/intro/conditions" },
         ],
+      },
+      {
+        text: "Actions",
+        items: [
+          { text: "Append Text", link: "/actions/append-text" },
+          { text: "Prepend Text", link: "/actions/prepend-text" },
+        ],
+      },
+      {
+        text: "Conditions",
+        items: [
+          { text: "File Name", link: "/conditions/file-name" },
+          { text: "File Path", link: "/conditions/file-path" },
+          { text: "Property", link: "/conditions/property" },
+          { text: "Condition Groups", link: "/conditions/condition-groups" },
+        ],
+      },
+      {
+        text: "Guides",
+        items: [{ text: "Guides", link: "/guides/index" }],
       },
     ],
 

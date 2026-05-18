@@ -49,5 +49,5 @@ Create a `.md` file inside the monitored folder. If you set up an *Append text* 
 
 - [Monitored Folders](./monitored-folders) — how folder scoping works
 - [Rules](./rules) — triggers, ordering, and enabling/disabling
-- [Conditions](./conditions) — all available filters
-- [Actions](./actions) — all available actions
+- [Conditions](/conditions/file-name) — all available filters
+- [Actions](/actions/append-text) — all available actions
