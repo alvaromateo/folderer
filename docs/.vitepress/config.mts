@@ -9,12 +9,12 @@ export default defineConfig({
   head: [
     [
       "link",
-      { rel: "icon", type: "image/png", href: "/folderer/favicon.png" },
+      { rel: "icon", type: "image/svg+xml", href: "/folderer/folder-cog.svg" },
     ],
   ],
 
   themeConfig: {
-    logo: "/favicon.png",
+    logo: { light: "/folder-cog-light.svg", dark: "/folder-cog-dark.svg" },
 
     nav: [
       { text: "Docs", link: "/intro/getting-started" },
@@ -40,6 +40,15 @@ export default defineConfig({
         items: [
           { text: "Append Text", link: "/actions/append-text" },
           { text: "Prepend Text", link: "/actions/prepend-text" },
+          {
+            text: "Move to Date Subfolder",
+            link: "/actions/move-to-date-subfolder",
+          },
+          {
+            text: "Move to Property Subfolder",
+            link: "/actions/move-to-property-subfolder",
+          },
+          { text: "Move Attachments", link: "/actions/move-attachments" },
         ],
       },
       {
@@ -48,7 +57,6 @@ export default defineConfig({
           { text: "File Name", link: "/conditions/file-name" },
           { text: "File Path", link: "/conditions/file-path" },
           { text: "Property", link: "/conditions/property" },
-          { text: "Condition Groups", link: "/conditions/condition-groups" },
         ],
       },
       {

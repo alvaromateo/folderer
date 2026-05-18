@@ -91,8 +91,7 @@ export class StringValueOperator {
         try {
           const regex = new RegExp(value);
           result = regex.test(key);
-        } catch (exc) {
-          console.error(exc);
+        } catch {
           throw Error(`Regex [${value}] invalid`);
         }
         break;
