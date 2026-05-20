@@ -7,6 +7,9 @@
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:debug": "vitest run --config vitest.integration.config.ts --inspect-brk=0.0.0.0:9229 --no-file-parallelism",
+    "test:integration:docker": "npm run docker:build && npm run docker:run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "lint": "biome lint .",
@@ -17,7 +20,10 @@
     "prepare": "husky",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "docker:build": "docker build --platform linux/amd64 -t folderer-integration .",
+    "docker:run": "docker run --rm --platform linux/amd64 folderer-integration",
+    "docker:debug": "docker run --rm -d --platform linux/amd64 -p 9229:9229 --name folderer-debug --entrypoint docker/debug.sh folderer-integration"
   },
   "dependencies": {
     "obsidian": "latest"

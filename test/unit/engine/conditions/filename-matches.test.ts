@@ -1,8 +1,8 @@
 import type { App, TFile } from "obsidian";
 import { describe, expect, it } from "vitest";
-import { fileNameEvaluator } from "../../../src/engine/conditions/file-name";
-import { filePathEvaluator } from "../../../src/engine/conditions/file-path";
-import type { ConditionData } from "../../../src/types";
+import { fileNameEvaluator } from "../../../../src/engine/conditions/file-name";
+import { filePathEvaluator } from "../../../../src/engine/conditions/file-path";
+import type { ConditionData } from "../../../../src/types";
 
 const mockApp = {} as App;
 

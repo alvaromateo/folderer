@@ -1,0 +1,10 @@
+{
+  "vaults": {
+    "folderer-test-vault": {
+      "path": "/workspace/test-vault",
+      "ts": 0,
+      "open": true
+    }
+  },
+  "cli": true
+}

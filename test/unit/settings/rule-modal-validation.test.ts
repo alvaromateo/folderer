@@ -14,9 +14,9 @@
  */
 
 import { describe, expect, it } from "vitest";
-import type { ActionExecutor } from "../../src/engine/actions/executor";
-import { HandlerRegistry } from "../../src/engine/registry";
-import type { ActionData, RuleData } from "../../src/types";
+import type { ActionExecutor } from "../../../src/engine/actions/executor";
+import { HandlerRegistry } from "../../../src/engine/registry";
+import type { ActionData, RuleData } from "../../../src/types";
 
 // ---------------------------------------------------------------------------
 // Helpers
