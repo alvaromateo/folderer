@@ -80,7 +80,13 @@ export class ObsidianClient {
   // via the eval command, since the CLI's create command only handles markdown files.
   // Any stale copy from a previous failed run is deleted first.
   async createAttachment(path: string, content = ""): Promise<void> {
-    const code = `(async()=>{try{const f=app.vault.getAbstractFileByPath(${JSON.stringify(path)});if(f)await app.vault.delete(f)}catch(e){}await app.vault.create(${JSON.stringify(path)},${JSON.stringify(content)})})()`;
+    const code = `(async() => {
+      try {
+        const f = app.vault.getAbstractFileByPath(${JSON.stringify(path)});
+        if (f) await app.vault.delete(f);
+      } catch (e) {}
+      await app.vault.create(${JSON.stringify(path)},${JSON.stringify(content)});
+    })()`;
     await execFileAsync(CLI_PATH, [...vaultArgs(), "eval", `code=${code}`]);
     await delay(500);
   }
