@@ -20,6 +20,8 @@ A trigger defines which event causes a rule to be evaluated.
 |---------|--------------|
 | **File created** | A new markdown file is written into the monitored folder |
 | **File renamed** | A markdown file already inside the folder is renamed (not moved) |
+| **File moved**   | A markdown file inside the folder is moved |
+| **File deleted** | A markdown file inside the monitored folder is removed |
 
 > **Note on moves:** When a file is moved *into* a monitored folder from a different folder, Folderer treats it as a **File created** event. Moving a file out of a folder does not trigger any rule.
 
@@ -28,8 +30,8 @@ A trigger defines which event causes a rule to be evaluated.
 1. Expand a monitored folder section in **Settings → Folderer**
 2. Click **Add rule**
 3. Fill in the name and select a trigger
-4. Optionally configure conditions (see [Conditions](./conditions))
-5. Add one or more actions (see [Actions](./actions))
+4. Optionally configure conditions (see [Conditions](/conditions/file-name))
+5. Add one or more actions (see [Actions](/actions/append-text))
 6. Click **Save**
 
 The rule appears in the folder's rule list and is enabled by default.
