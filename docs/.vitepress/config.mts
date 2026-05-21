@@ -61,7 +61,10 @@ export default defineConfig({
       },
       {
         text: "Guides",
-        items: [{ text: "Guides", link: "/guides/index" }],
+        items: [
+          { text: "Daily folder", link: "/guides/daily-folder" },
+          { text: "Move attachments", link: "/guides/move-attachments" },
+        ],
       },
     ],
 
