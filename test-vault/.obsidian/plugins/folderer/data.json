@@ -62,6 +62,50 @@
       ]
     },
     {
+      "path": "IntegrationTestActions",
+      "rules": [
+        {
+          "id": "it-date-subfolder",
+          "name": "Date Subfolder Rule",
+          "enabled": true,
+          "trigger": { "type": "create" },
+          "conditions": {
+            "type": "all",
+            "conditions": [
+              { "type": "file-name", "operator": "contains", "params": { "value": "it-date-" } }
+            ]
+          },
+          "actions": [{ "type": "move-to-date-subfolder", "params": { "pattern": "MM-YYYY" } }]
+        },
+        {
+          "id": "it-property-subfolder",
+          "name": "Property Subfolder Rule",
+          "enabled": true,
+          "trigger": { "type": "move" },
+          "conditions": {
+            "type": "all",
+            "conditions": [
+              { "type": "file-name", "operator": "contains", "params": { "value": "it-prop-" } }
+            ]
+          },
+          "actions": [{ "type": "move-to-property-subfolder", "params": { "property": "destination" } }]
+        },
+        {
+          "id": "it-move-attachments",
+          "name": "Move Attachments Rule",
+          "enabled": true,
+          "trigger": { "type": "move" },
+          "conditions": {
+            "type": "all",
+            "conditions": [
+              { "type": "file-name", "operator": "contains", "params": { "value": "it-attach-" } }
+            ]
+          },
+          "actions": [{ "type": "move-attachments", "params": { "folder": "Attachments" } }]
+        }
+      ]
+    },
+    {
       "path": "IntegrationTest",
       "rules": [
         {
