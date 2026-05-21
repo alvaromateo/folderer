@@ -31,13 +31,11 @@ describe("move-attachments action", () => {
     const attachName = "it-attach-file.txt";
     const noteSource = `${UNMONITORED}/${noteName}`;
     const noteDest = `${MONITORED}/${noteName}`;
-    const attachOrigin = `${MONITORED}/${attachName}`;
+    const attachOrigin = `${UNMONITORED}/Attachments/${attachName}`;
     const attachDest = `${MONITORED}/Attachments/${attachName}`;
     created.push(noteSource, noteDest, attachOrigin, attachDest);
 
-    // Pre-create the attachment in the monitored folder so Obsidian tracks it.
     await client.createAttachment(attachOrigin, "attachment data");
-    // Create the note in an unmonitored folder with an embed referencing the attachment.
     await client.createFile(noteSource, `![[${attachName}]]`);
     // Give the metadata cache time to index the embed before the note is moved.
     await delay(1500);
