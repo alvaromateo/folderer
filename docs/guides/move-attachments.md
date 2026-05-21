@@ -38,10 +38,8 @@ Inside the _Literature_ section, click **Add rule** and fill in the fields:
 | Field | Value |
 |-------|-------|
 | **Name** | `Carry over attachments` (or any label you like) |
-| **Trigger** | `File created` |
+| **Trigger** | `File moved` |
 | **Conditions** | _(leave empty — applies to every note)_ |
-
-> **Why `File created`?** Moving a note into a monitored folder from a different folder is treated as a creation event by Folderer, so this trigger fires whenever a note arrives in _Literature_ regardless of where it came from.
 
 ### 3. Add the action
 
