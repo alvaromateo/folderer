@@ -21,6 +21,14 @@ An [Obsidian](https://obsidian.md/) plugin that automatically runs rules on mark
 2. Click **Browse** and search for **Folderer**
 3. Install and enable the plugin
 
+### Manual
+
+1. Download the plugin files from the releases page
+2. Inside your vault, go to `.obsidian/plugin/folderer` (create the directories if needed)
+3. Move the downloaded files into the previous folder (uncompress them first)
+4. Also inside your vault, edit `.obisidian/community-plugins.json` and add "folderer" to the list
+5. Restart Obsidian
+
 ## Quick Start
 
 1. Open **Settings → Folderer**

@@ -1,10 +1,10 @@
 {
   "id": "folderer",
   "name": "Folderer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "minAppVersion": "1.4.0",
-  "description": "Appends text to markdown files when they enter monitored folders.",
+  "description": "Monitors folders for files added and runs custom actions based on user rules.",
   "author": "Alvaro Mateo",
-  "authorUrl": "",
+  "authorUrl": "https://www.noart.dev",
   "isDesktopOnly": false
 }
