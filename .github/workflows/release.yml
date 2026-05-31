@@ -5,6 +5,9 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
 
 jobs:
   release:
@@ -22,6 +25,11 @@ jobs:
 
       - name: Build plugin
         run: npm run build
+
+      - name: Attest build
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/main.js
 
       - name: Read version
         id: version
